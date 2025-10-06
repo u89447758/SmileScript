@@ -1,0 +1,72 @@
+﻿# =========================================================================
+# ASP.NET Core Defaults
+# C#, Visual Studio, and Rider specific ignores
+# =========================================================================
+*.cs.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.dll
+*.exe
+*.pdb
+*.obj
+*.nupkg
+*.nuget.props
+*.nuget.targets
+
+# User-specific files
+[Oo]bj/
+[Bb]in/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+Build/
+bld/
+[Tt]est[Rr]esult*/
+[Bb]uild[Ss]ystem*/
+[Dd]ot[Nn]et[Pp]ublish/
+artifacts/
+
+# Visual Studio files
+.vs/
+*.opensdf
+*.sdf
+*.cache
+
+# Rider files
+.idea/
+
+# =========================================================================
+# Environment and Configuration Files
+# Ignore local secrets and settings files that should not be committed.
+# =========================================================================
+appsettings.Development.json
+secrets.json
+user-secrets-id.txt
+
+# =========================================================================
+# Project-Specific Ignores
+# Add your custom rules below this line.
+# =========================================================================
+
+# Ignore the 'images' folder located inside the 'wwwroot' directory.
+# The leading slash ensures it only matches at the root of the repository.
+# The trailing slash signifies that it's a directory.
+/wwwroot/images/
+
+# Ignore log files
+*.log
+logs/
+
+# Ignore local database files
+*.mdf
+*.ldf
+
+# Ignore package lock files if you prefer
+# package-lock.json
+# yarn.lock
