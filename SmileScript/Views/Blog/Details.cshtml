@@ -1,0 +1,44 @@
+﻿@model SmileScript.Models.BlogPost
+@using Markdig
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <article>
+                <header class="mb-4">
+                    <h1 class="fw-bolder mb-1">@Model.Title</h1>
+                    <div class="text-muted fst-italic mb-2">
+                        Posted on @Model.CreatedDate.ToLongDateString() by @Model.Author.Email
+                    </div>
+                    <a class="badge bg-secondary text-decoration-none link-light" href="#!">@Model.Category.Name</a>
+                </header>
+
+                @if (!string.IsNullOrEmpty(Model.HeaderImageUrl))
+                {
+                    <figure class="mb-4">
+                        <img class="img-fluid rounded" src="@Model.HeaderImageUrl" alt="Header Image for @Model.Title" />
+                    </figure>
+                }
+
+                <!-- Post Content -->
+                <section class="mb-5">
+                    @{
+                        // --- THE FINAL, CORRECTED AND VERIFIED FIX IS HERE ---
+                        // UseAdvancedExtensions() is the correct method. My previous attempts
+                        // failed due to incorrect Razor syntax, not this method.
+                        var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+                        var htmlContent = Markdown.ToHtml(Model.Content ?? "", pipeline);
+                    }
+                    @Html.Raw(htmlContent)
+                </section>
+            </article>
+
+            <!-- Comment section will be added here -->
+
+        </div>
+    </div>
+</div>

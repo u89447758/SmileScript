@@ -1,0 +1,3096 @@
+Exporting directories... 
+================================== 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\wwwroot\css\site.css 
+-------------------------------------------------- 
+ 
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\wwwroot\js\site.js 
+-------------------------------------------------- 
+ 
+﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
+// for details on configuring this project to bundle and minify static web assets.
+
+// Write your JavaScript code.
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Areas\Identity\Pages\_ValidationScriptsPartial.cshtml 
+-------------------------------------------------- 
+ 
+﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Areas\Identity\Pages\_ViewImports.cshtml 
+-------------------------------------------------- 
+ 
+﻿@using Microsoft.AspNetCore.Identity
+@using SmileScript.Areas.Identity
+@using SmileScript.Areas.Identity.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Areas\Identity\Pages\_ViewStart.cshtml 
+-------------------------------------------------- 
+ 
+﻿@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Areas\Identity\Pages\Account\ForgotPassword.cshtml 
+-------------------------------------------------- 
+ 
+﻿@page
+@model ForgotPasswordModel
+@{
+    ViewData["Title"] = "Forgot your password?";
+}
+
+<h1>@ViewData["Title"]</h1>
+<h2>Enter your email.</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <label asp-for="Input.Email" class="form-label"></label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <button type="submit" class="w-100 btn btn-lg btn-primary">Reset Password</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Areas\Identity\Pages\Account\ForgotPassword.cshtml.cs 
+-------------------------------------------------- 
+ 
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+#nullable disable
+
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+using System.Text.Encodings.Web;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.WebUtilities;
+
+namespace SmileScript.Areas.Identity.Pages.Account
+{
+    public class ForgotPasswordModel : PageModel
+    {
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IEmailSender _emailSender;
+
+        public ForgotPasswordModel(UserManager<IdentityUser> userManager, IEmailSender emailSender)
+        {
+            _userManager = userManager;
+            _emailSender = emailSender;
+        }
+
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [BindProperty]
+        public InputModel Input { get; set; }
+
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public class InputModel
+        {
+            /// <summary>
+            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            [Required]
+            [EmailAddress]
+            public string Email { get; set; }
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(Input.Email);
+                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                {
+                    // Don't reveal that the user does not exist or is not confirmed
+                    return RedirectToPage("./ForgotPasswordConfirmation");
+                }
+
+                // For more information on how to enable account confirmation and password reset please
+                // visit https://go.microsoft.com/fwlink/?LinkID=532713
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                var callbackUrl = Url.Page(
+                    "/Account/ResetPassword",
+                    pageHandler: null,
+                    values: new { area = "Identity", code },
+                    protocol: Request.Scheme);
+
+                await _emailSender.SendEmailAsync(
+                    Input.Email,
+                    "Reset Password",
+                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                return RedirectToPage("./ForgotPasswordConfirmation");
+            }
+
+            return Page();
+        }
+    }
+}
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Areas\Identity\Pages\Account\Login.cshtml 
+-------------------------------------------------- 
+ 
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<h1>@ViewData["Title"]</h1>
+<div class="row">
+    <div class="col-md-4">
+        <section>
+            <form id="account" method="post">
+                <h2>Use a local account to log in.</h2>
+                <hr />
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                    <label asp-for="Input.Email" class="form-label">Email</label>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
+                    <label asp-for="Input.Password" class="form-label">Password</label>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+                <div class="checkbox mb-3">
+                    <label asp-for="Input.RememberMe" class="form-label">
+                        <input class="form-check-input" asp-for="Input.RememberMe" />
+                        @Html.DisplayNameFor(m => m.Input.RememberMe)
+                    </label>
+                </div>
+                <div>
+                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
+                </div>
+                <div>
+                    <p>
+                        <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
+                    </p>
+                    <p>
+                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
+                    </p>
+                    <p>
+                        <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
+                    </p>
+                </div>
+            </form>
+        </section>
+    </div>
+    <div class="col-md-6 col-md-offset-2">
+        <section>
+            <h3>Use another service to log in.</h3>
+            <hr />
+            @{
+                if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                {
+                    <div>
+                        <p>
+                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
+                            about setting up this ASP.NET application to support logging in via external services</a>.
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                        <div>
+                            <p>
+                                @foreach (var provider in Model.ExternalLogins!)
+                                {
+                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                }
+                            </p>
+                        </div>
+                    </form>
+                }
+            }
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Areas\Identity\Pages\Account\Login.cshtml.cs 
+-------------------------------------------------- 
+ 
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+#nullable disable
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
+
+namespace SmileScript.Areas.Identity.Pages.Account
+{
+    public class LoginModel : PageModel
+    {
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ILogger<LoginModel> _logger;
+
+        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+        {
+            _signInManager = signInManager;
+            _logger = logger;
+        }
+
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [BindProperty]
+        public InputModel Input { get; set; }
+
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public IList<AuthenticationScheme> ExternalLogins { get; set; }
+
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public string ReturnUrl { get; set; }
+
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [TempData]
+        public string ErrorMessage { get; set; }
+
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public class InputModel
+        {
+            /// <summary>
+            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            [Required]
+            [EmailAddress]
+            public string Email { get; set; }
+
+            /// <summary>
+            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            [Required]
+            [DataType(DataType.Password)]
+            public string Password { get; set; }
+
+            /// <summary>
+            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            [Display(Name = "Remember me?")]
+            public bool RememberMe { get; set; }
+        }
+
+        public async Task OnGetAsync(string returnUrl = null)
+        {
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ModelState.AddModelError(string.Empty, ErrorMessage);
+            }
+
+            returnUrl ??= Url.Content("~/");
+
+            // Clear the existing external cookie to ensure a clean login process
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            ReturnUrl = returnUrl;
+        }
+
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        {
+            returnUrl ??= Url.Content("~/");
+
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            if (ModelState.IsValid)
+            {
+                // This doesn't count login failures towards account lockout
+                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("User logged in.");
+                    return LocalRedirect(returnUrl);
+                }
+                if (result.RequiresTwoFactor)
+                {
+                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
+                }
+                if (result.IsLockedOut)
+                {
+                    _logger.LogWarning("User account locked out.");
+                    return RedirectToPage("./Lockout");
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    return Page();
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            return Page();
+        }
+    }
+}
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Areas\Identity\Pages\Account\Register.cshtml 
+-------------------------------------------------- 
+ 
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <h2>Create a new account.</h2>
+            <hr />
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <label asp-for="Input.Email">Email</label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                <label asp-for="Input.Password">Password</label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+        </form>
+    </div>
+    <div class="col-md-6 col-md-offset-2">
+        <section>
+            <h3>Use another service to register.</h3>
+            <hr />
+            @{
+                if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                {
+                    <div>
+                        <p>
+                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
+                            about setting up this ASP.NET application to support logging in via external services</a>.
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                        <div>
+                            <p>
+                                @foreach (var provider in Model.ExternalLogins!)
+                                {
+                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                }
+                            </p>
+                        </div>
+                    </form>
+                }
+            }
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Areas\Identity\Pages\Account\Register.cshtml.cs 
+-------------------------------------------------- 
+ 
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+#nullable disable
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Text.Encodings.Web;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
+
+namespace SmileScript.Areas.Identity.Pages.Account
+{
+    public class RegisterModel : PageModel
+    {
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IUserStore<IdentityUser> _userStore;
+        private readonly IUserEmailStore<IdentityUser> _emailStore;
+        private readonly ILogger<RegisterModel> _logger;
+        private readonly IEmailSender _emailSender;
+
+        public RegisterModel(
+            UserManager<IdentityUser> userManager,
+            IUserStore<IdentityUser> userStore,
+            SignInManager<IdentityUser> signInManager,
+            ILogger<RegisterModel> logger,
+            IEmailSender emailSender)
+        {
+            _userManager = userManager;
+            _userStore = userStore;
+            _emailStore = GetEmailStore();
+            _signInManager = signInManager;
+            _logger = logger;
+            _emailSender = emailSender;
+        }
+
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [BindProperty]
+        public InputModel Input { get; set; }
+
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public string ReturnUrl { get; set; }
+
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public IList<AuthenticationScheme> ExternalLogins { get; set; }
+
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public class InputModel
+        {
+            /// <summary>
+            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            [Required]
+            [EmailAddress]
+            [Display(Name = "Email")]
+            public string Email { get; set; }
+
+            /// <summary>
+            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            [Required]
+            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [DataType(DataType.Password)]
+            [Display(Name = "Password")]
+            public string Password { get; set; }
+
+            /// <summary>
+            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            [DataType(DataType.Password)]
+            [Display(Name = "Confirm password")]
+            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            public string ConfirmPassword { get; set; }
+        }
+
+
+        public async Task OnGetAsync(string returnUrl = null)
+        {
+            ReturnUrl = returnUrl;
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+        }
+
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        {
+            returnUrl ??= Url.Content("~/");
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            if (ModelState.IsValid)
+            {
+                var user = CreateUser();
+
+                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+                await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                var result = await _userManager.CreateAsync(user, Input.Password);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("User created a new account with password.");
+
+                    var userId = await _userManager.GetUserIdAsync(user);
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    var callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                        protocol: Request.Scheme);
+
+                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                    {
+                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                    }
+                    else
+                    {
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return LocalRedirect(returnUrl);
+                    }
+                }
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            return Page();
+        }
+
+        private IdentityUser CreateUser()
+        {
+            try
+            {
+                return Activator.CreateInstance<IdentityUser>();
+            }
+            catch
+            {
+                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
+                    $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
+            }
+        }
+
+        private IUserEmailStore<IdentityUser> GetEmailStore()
+        {
+            if (!_userManager.SupportsUserEmail)
+            {
+                throw new NotSupportedException("The default UI requires a user store with email support.");
+            }
+            return (IUserEmailStore<IdentityUser>)_userStore;
+        }
+    }
+}
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Areas\Identity\Pages\Account\_ViewImports.cshtml 
+-------------------------------------------------- 
+ 
+﻿@using SmileScript.Areas.Identity.Pages.Account 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Controllers\BlogController.cs 
+-------------------------------------------------- 
+ 
+﻿using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SmileScript.Data;
+
+namespace SmileScript.Controllers
+{
+    public class BlogController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+
+        public BlogController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        // GET: Blog/my-first-post-slug
+        [HttpGet("Blog/{slug}")]
+        public async Task<IActionResult> Details(string slug)
+        {
+            if (string.IsNullOrEmpty(slug))
+            {
+                return NotFound();
+            }
+
+            var blogPost = await _context.BlogPosts
+                .Include(p => p.Author)
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Slug == slug && p.Status == Enums.PostStatus.Published);
+
+            if (blogPost == null)
+            {
+                return NotFound();
+            }
+
+            return View(blogPost);
+        }
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Controllers\BlogPostsController.cs 
+-------------------------------------------------- 
+ 
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using SmileScript.Data;
+using SmileScript.Enums;
+using SmileScript.Models;
+using SmileScript.ViewModels;
+
+namespace SmileScript.Controllers
+{
+    [Authorize(Roles = "Admin,Author")]
+    public class BlogPostsController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        public BlogPostsController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IWebHostEnvironment webHostEnvironment)
+        {
+            _context = context;
+            _userManager = userManager;
+            _webHostEnvironment = webHostEnvironment;
+        }
+
+        // GET: BlogPosts
+        public async Task<IActionResult> Index()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            IQueryable<BlogPost> blogPosts = _context.BlogPosts
+                .Include(b => b.Author)
+                .Include(b => b.Category);
+
+            if (User.IsInRole("Author"))
+            {
+                blogPosts = blogPosts.Where(p => p.AuthorId == userId);
+            }
+
+            return View(await blogPosts.OrderByDescending(p => p.CreatedDate).ToListAsync());
+        }
+
+        // GET: BlogPosts/Create
+        public async Task<IActionResult> Create()
+        {
+            var model = new BlogPostViewModel
+            {
+                CategoryList = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name")
+            };
+            return View(model);
+        }
+
+        // POST: BlogPosts/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(BlogPostViewModel model)
+        {
+            // ******************************************************
+            // THE DEFINITIVE FIX IS HERE
+            // We manually remove the validation errors for the navigation properties,
+            // because we only need their IDs from the form.
+            ModelState.Remove("BlogPost.Author");
+            ModelState.Remove("BlogPost.Category");
+            // ******************************************************
+
+            if (ModelState.IsValid)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                model.BlogPost.AuthorId = userId!;
+                model.BlogPost.CreatedDate = DateTime.UtcNow;
+
+                if (model.HeaderImage != null)
+                {
+                    string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "images/headers");
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + model.HeaderImage.FileName;
+                    string filePath = Path.Combine(uploadsDir, uniqueFileName);
+                    await using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.HeaderImage.CopyToAsync(fileStream);
+                    }
+                    model.BlogPost.HeaderImageUrl = "/images/headers/" + uniqueFileName;
+                }
+
+                model.BlogPost.Slug = model.BlogPost.Title.ToLower().Replace(" ", "-");
+
+                if (User.IsInRole("Author"))
+                {
+                    model.BlogPost.Status = PostStatus.PendingReview;
+                    TempData["ToastMessage"] = "Blog post submitted for review successfully!";
+                }
+                else
+                {
+                    model.BlogPost.Status = PostStatus.Published;
+                    TempData["ToastMessage"] = "Blog post created and published successfully!";
+                }
+
+                _context.Add(model.BlogPost);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            model.CategoryList = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name", model.BlogPost.CategoryId);
+            return View(model);
+        }
+
+        // GET: BlogPosts/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+            var blogPost = await _context.BlogPosts.FindAsync(id);
+            if (blogPost == null) return NotFound();
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (User.IsInRole("Author") && blogPost.AuthorId != currentUserId)
+            {
+                return Forbid();
+            }
+
+            var model = new BlogPostViewModel
+            {
+                BlogPost = blogPost,
+                CategoryList = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name", blogPost.CategoryId)
+            };
+            return View(model);
+        }
+
+        // POST: BlogPosts/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, BlogPostViewModel model)
+        {
+            if (id != model.BlogPost.Id) return NotFound();
+
+            var blogPostFromDb = await _context.BlogPosts.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+            if (blogPostFromDb == null) return NotFound();
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (User.IsInRole("Author") && blogPostFromDb.AuthorId != currentUserId)
+            {
+                return Forbid();
+            }
+
+            // Apply the same fix for the Edit action
+            ModelState.Remove("BlogPost.Author");
+            ModelState.Remove("BlogPost.Category");
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var blogPostToUpdate = model.BlogPost;
+                    blogPostToUpdate.UpdatedDate = DateTime.UtcNow;
+                    blogPostToUpdate.AuthorId = blogPostFromDb.AuthorId;
+                    blogPostToUpdate.CreatedDate = blogPostFromDb.CreatedDate;
+
+                    if (model.HeaderImage != null)
+                    {
+                        string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "images/headers");
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + model.HeaderImage.FileName;
+                        string filePath = Path.Combine(uploadsDir, uniqueFileName);
+                        await using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await model.HeaderImage.CopyToAsync(fileStream);
+                        }
+                        blogPostToUpdate.HeaderImageUrl = "/images/headers/" + uniqueFileName;
+                    }
+                    else
+                    {
+                        blogPostToUpdate.HeaderImageUrl = blogPostFromDb.HeaderImageUrl;
+                    }
+
+                    blogPostToUpdate.Slug = model.BlogPost.Title.ToLower().Replace(" ", "-");
+
+                    if (User.IsInRole("Author"))
+                    {
+                        blogPostToUpdate.Status = PostStatus.PendingReview;
+                    }
+
+                    _context.Update(blogPostToUpdate);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!_context.BlogPosts.Any(e => e.Id == model.BlogPost.Id)) return NotFound();
+                    else throw;
+                }
+                TempData["ToastMessage"] = "Blog post updated successfully!";
+                return RedirectToAction(nameof(Index));
+            }
+            model.CategoryList = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name", model.BlogPost.CategoryId);
+            return View(model);
+        }
+
+        // POST: BlogPosts/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var blogPost = await _context.BlogPosts.FindAsync(id);
+            if (blogPost == null) return NotFound();
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (User.IsInRole("Author") && blogPost.AuthorId != currentUserId)
+            {
+                return Forbid();
+            }
+
+            _context.BlogPosts.Remove(blogPost);
+            await _context.SaveChangesAsync();
+            TempData["ToastMessage"] = "Blog post deleted successfully!";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<JsonResult> UploadImage([FromForm(Name = "editormd-image-file")] IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return Json(new { success = 0, message = "No file received or file is empty." });
+            }
+            try
+            {
+                string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "images/posts");
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+                string filePath = Path.Combine(uploadsDir, uniqueFileName);
+                await using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+                return Json(new { success = 1, message = "Image uploaded successfully!", url = "/images/posts/" + uniqueFileName });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = 0, message = "An error occurred: " + ex.Message });
+            }
+        }
+
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var blogPost = await _context.BlogPosts.FindAsync(id);
+            if (blogPost == null)
+            {
+                return NotFound();
+            }
+
+            blogPost.Status = PostStatus.Published;
+            _context.Update(blogPost);
+            await _context.SaveChangesAsync();
+
+            TempData["ToastMessage"] = "Blog post has been approved and published!";
+            return RedirectToAction("AdminDashboard", "Dashboard");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reject(int id)
+        {
+            var blogPost = await _context.BlogPosts.FindAsync(id);
+            if (blogPost == null)
+            {
+                return NotFound();
+            }
+
+            blogPost.Status = PostStatus.Rejected;
+            _context.Update(blogPost);
+            await _context.SaveChangesAsync();
+
+            TempData["ToastMessage"] = "Blog post has been rejected.";
+            return RedirectToAction("AdminDashboard", "Dashboard");
+        }
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Controllers\CategoriesController.cs 
+-------------------------------------------------- 
+ 
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization; // Add this
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using SmileScript.Data;
+using SmileScript.Models;
+
+namespace SmileScript.Controllers
+{
+    [Authorize(Roles = "Admin")] // Add this attribute to secure the whole controller
+    public class CategoriesController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+
+        public CategoriesController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        // GET: Categories
+        public async Task<IActionResult> Index()
+        {
+            return View(await _context.Categories.ToListAsync());
+        }
+
+        // POST: Categories/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Name,Slug,Description")] Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                // Simple slug generation (can be improved later)
+                category.Slug = category.Name.ToLower().Replace(" ", "-");
+                _context.Add(category);
+                await _context.SaveChangesAsync();
+                TempData["ToastMessage"] = "Category created successfully!";
+                return RedirectToAction(nameof(Index));
+            }
+            // If we get here, something was wrong, but we handle this with AJAX on the page
+            // so we will return a partial view or JSON in a later step if needed.
+            // For now, redirecting is fine.
+            TempData["ToastMessage"] = "Error creating category.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Categories/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Slug,Description")] Category category)
+        {
+            if (id != category.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Re-generate slug on edit
+                    category.Slug = category.Name.ToLower().Replace(" ", "-");
+                    _context.Update(category);
+                    await _context.SaveChangesAsync();
+                    TempData["ToastMessage"] = "Category updated successfully!";
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CategoryExists(category.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            TempData["ToastMessage"] = "Error updating category.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Categories/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category != null)
+            {
+                _context.Categories.Remove(category);
+                await _context.SaveChangesAsync();
+                TempData["ToastMessage"] = "Category deleted successfully!";
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool CategoryExists(int id)
+        {
+            return _context.Categories.Any(e => e.Id == id);
+        }
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Controllers\DashboardController.cs 
+-------------------------------------------------- 
+ 
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SmileScript.Data;
+using SmileScript.Enums;
+using SmileScript.ViewModels;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+
+namespace SmileScript.Controllers
+{
+    [Authorize]
+    public class DashboardController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
+
+        public DashboardController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        {
+            _context = context;
+            _userManager = userManager;
+        }
+
+        public IActionResult Index()
+        {
+            if (User.IsInRole("Admin"))
+            {
+                return RedirectToAction("AdminDashboard");
+            }
+            else if (User.IsInRole("Author"))
+            {
+                return RedirectToAction("AuthorDashboard");
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AdminDashboard()
+        {
+            var viewModel = new AdminDashboardViewModel
+            {
+                UserCount = await _userManager.Users.CountAsync(),
+                PostCount = await _context.BlogPosts.CountAsync(),
+                CategoriesCount = await _context.Categories.CountAsync(),
+                PostsPendingReview = await _context.BlogPosts
+                                        .Include(p => p.Author)
+                                        .Where(p => p.Status == PostStatus.PendingReview)
+                                        .OrderBy(p => p.CreatedDate)
+                                        .ToListAsync()
+            };
+
+            return View(viewModel);
+        }
+
+        [Authorize(Roles = "Author")]
+        public async Task<IActionResult> AuthorDashboard()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var viewModel = new AuthorDashboardViewModel
+            {
+                PublishedPostsCount = await _context.BlogPosts.CountAsync(p => p.AuthorId == userId && p.Status == PostStatus.Published),
+                PendingPostsCount = await _context.BlogPosts.CountAsync(p => p.AuthorId == userId && p.Status == PostStatus.PendingReview),
+                RejectedPostsCount = await _context.BlogPosts.CountAsync(p => p.AuthorId == userId && p.Status == PostStatus.Rejected)
+            };
+            return View(viewModel);
+        }
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Controllers\HomeController.cs 
+-------------------------------------------------- 
+ 
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SmileScript.Data;
+using SmileScript.Models;
+
+namespace SmileScript.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
+
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+        {
+            _logger = logger;
+            _context = context;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var publishedPosts = await _context.BlogPosts
+                .Include(p => p.Author)
+                .Include(p => p.Category)
+                .Where(p => p.Status == Enums.PostStatus.Published)
+                .OrderByDescending(p => p.CreatedDate)
+                .ToListAsync();
+
+            return View(publishedPosts);
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Controllers\UserManagementController.cs 
+-------------------------------------------------- 
+ 
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using SmileScript.ViewModels;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace SmileScript.Controllers
+{
+    [Authorize(Roles = "Admin")]
+    public class UserManagementController : Controller
+    {
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public UserManagementController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        {
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
+
+        // GET: UserManagement
+        public async Task<IActionResult> Index()
+        {
+            var users = await _userManager.Users.ToListAsync();
+            var userViewModels = new List<UserViewModel>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                userViewModels.Add(new UserViewModel
+                {
+                    Id = user.Id,
+                    Email = user.Email ?? "No Email",
+                    // FIX: Provide a default value if the user has no role.
+                    Role = roles.FirstOrDefault() ?? "No Role"
+                });
+            }
+
+            return View(userViewModels);
+        }
+
+        // GET: UserManagement/Create
+        public async Task<IActionResult> Create()
+        {
+            var model = new UserViewModel
+            {
+                Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Name", "Name")
+            };
+            return View(model);
+        }
+
+        // POST: UserManagement/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(UserViewModel model)
+        {
+            // We remove the password validation here because it's not part of the model state for editing
+            // but it is for creating. A more complex setup would use different viewmodels.
+            if (string.IsNullOrEmpty(model.Password))
+            {
+                ModelState.AddModelError("Password", "Password is required.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                var user = new IdentityUser { UserName = model.Email, Email = model.Email, EmailConfirmed = true };
+                // FIX: Use the null-forgiving operator '!' because we know Password is not null here.
+                var result = await _userManager.CreateAsync(user, model.Password!);
+
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, model.Role);
+                    TempData["ToastMessage"] = "User created successfully!";
+                    return RedirectToAction(nameof(Index));
+                }
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            model.Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Name", "Name");
+            return View(model);
+        }
+
+        // GET: UserManagement/Edit/5
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var model = new UserViewModel
+            {
+                Id = user.Id,
+                Email = user.Email ?? string.Empty,
+                Role = userRoles.FirstOrDefault() ?? string.Empty,
+                Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Name", "Name")
+            };
+
+            return View(model);
+        }
+
+        // POST: UserManagement/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, UserViewModel model)
+        {
+            if (id != model.Id)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var oldRoles = await _userManager.GetRolesAsync(user);
+            await _userManager.RemoveFromRolesAsync(user, oldRoles);
+            await _userManager.AddToRoleAsync(user, model.Role);
+
+            TempData["ToastMessage"] = "User role updated successfully!";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: UserManagement/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user != null)
+            {
+                await _userManager.DeleteAsync(user);
+                TempData["ToastMessage"] = "User deleted successfully!";
+            }
+            return RedirectToAction(nameof(Index));
+        }
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Data\ApplicationDbContext.cs 
+-------------------------------------------------- 
+ 
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using SmileScript.Models;
+
+namespace SmileScript.Data
+{
+    public class ApplicationDbContext : IdentityDbContext
+    {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<BlogPost> BlogPosts { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            // Configure the relationship between BlogPost and Comment to Cascade on delete.
+            // This is usually the default, but we're being explicit.
+            builder.Entity<Comment>()
+                .HasOne(p => p.BlogPost)
+                .WithMany(b => b.Comments)
+                .HasForeignKey(p => p.BlogPostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure the relationship between User(Author) and Comment to Restrict on delete.
+            // This is the key change to prevent the multiple cascade paths issue.
+            builder.Entity<Comment>()
+                .HasOne(p => p.Author)
+                .WithMany() // A user can have many comments, but we don't need a navigation property on the IdentityUser class.
+                .HasForeignKey(p => p.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
+
+    }
+}
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Data\DbInitializer.cs 
+-------------------------------------------------- 
+ 
+﻿using Microsoft.AspNetCore.Identity;
+using SmileScript.Models; // If you have a specific ApplicationUser model, use that namespace.
+
+namespace SmileScript.Data
+{
+    public static class DbInitializer
+    {
+        public static async Task Initialize(IApplicationBuilder app)
+        {
+            using var serviceScope = app.ApplicationServices.CreateScope();
+            var serviceProvider = serviceScope.ServiceProvider;
+
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+            // --- Create Roles if they don't exist ---
+            string[] roleNames = { "Admin", "Author", "User" };
+            foreach (var roleName in roleNames)
+            {
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(roleName));
+                }
+            }
+
+            // --- Create a default Admin User ---
+            var adminUser = await userManager.FindByEmailAsync("admin@smilescript.com");
+            if (adminUser == null)
+            {
+                adminUser = new IdentityUser
+                {
+                    UserName = "admin@smilescript.com",
+                    Email = "admin@smilescript.com",
+                    EmailConfirmed = true
+                };
+                // IMPORTANT: Change this password!
+                await userManager.CreateAsync(adminUser, "AdminPassword123!");
+
+                // Assign the 'Admin' role
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+            }
+
+            // --- Create a default Author User ---
+            var authorUser = await userManager.FindByEmailAsync("author@smilescript.com");
+            if (authorUser == null)
+            {
+                authorUser = new IdentityUser
+                {
+                    UserName = "author@smilescript.com",
+                    Email = "author@smilescript.com",
+                    EmailConfirmed = true
+                };
+                // IMPORTANT: Change this password!
+                await userManager.CreateAsync(authorUser, "AuthorPassword123!");
+
+                // Assign the 'Author' role
+                await userManager.AddToRoleAsync(authorUser, "Author");
+            }
+        }
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Models\BlogPost.cs 
+-------------------------------------------------- 
+ 
+﻿using Microsoft.AspNetCore.Identity;
+using SmileScript.Enums;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace SmileScript.Models
+{
+    public class BlogPost
+    {
+        public int Id { get; set; }
+
+        [Required]
+        [StringLength(200)]
+        public string Title { get; set; } = string.Empty; // Fixed: Initialized to non-null value
+
+        [Required]
+        public string Content { get; set; } = string.Empty; // Fixed: Initialized to non-null value
+
+        [StringLength(300)]
+        public string? Slug { get; set; } // Fixed: Made nullable for optional property
+
+        public string? HeaderImageUrl { get; set; } // Fixed: Made nullable for optional property
+
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedDate { get; set; }
+
+        public PostStatus Status { get; set; } = PostStatus.Draft;
+
+        // --- Navigation Properties & Foreign Keys ---
+
+        // Foreign key for Category
+        public int CategoryId { get; set; }
+        // Navigation property for Category
+        public virtual Category Category { get; set; } = null!; // Fixed: Used null-forgiving operator
+
+        // Foreign key for the author (user)
+        public string AuthorId { get; set; } = string.Empty; // Fixed: Initialized to non-null value
+        // Navigation property for ApplicationUser (comes from ASP.NET Core Identity)
+        public virtual IdentityUser Author { get; set; } = null!; // Fixed: Used null-forgiving operator
+
+        // A BlogPost can have many Comments
+        public virtual ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Models\Category.cs 
+-------------------------------------------------- 
+ 
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace SmileScript.Models
+{
+    public class Category
+    {
+        public int Id { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string Name { get; set; } = string.Empty; // Fixed: Initialized to non-null value
+
+        [StringLength(150)]
+        public string? Slug { get; set; } // Fixed: Made nullable for optional property
+
+        public string? Description { get; set; } // Fixed: Made nullable for optional property
+
+        // Navigation Property: A Category can have many BlogPosts
+        public virtual ICollection<BlogPost> BlogPosts { get; set; } = new HashSet<BlogPost>();
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Models\Comment.cs 
+-------------------------------------------------- 
+ 
+﻿using Microsoft.AspNetCore.Identity;
+using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace SmileScript.Models
+{
+    public class Comment
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public string Content { get; set; } = string.Empty; // Fixed: Initialized to non-null value
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
+        // --- Navigation Properties & Foreign Keys ---
+
+        // Foreign key for BlogPost
+        public int BlogPostId { get; set; }
+        // Navigation property for BlogPost
+        public virtual BlogPost BlogPost { get; set; } = null!; // Fixed: Used null-forgiving operator
+
+        // Foreign key for the user who made the comment
+        public string AuthorId { get; set; } = string.Empty; // Fixed: Initialized to non-null value
+        // Navigation property for ApplicationUser
+        public virtual IdentityUser Author { get; set; } = null!; // Fixed: Used null-forgiving operator
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Models\ErrorViewModel.cs 
+-------------------------------------------------- 
+ 
+namespace SmileScript.Models
+{
+    public class ErrorViewModel
+    {
+        public string? RequestId { get; set; }
+
+        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+    }
+}
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\_ViewImports.cshtml 
+-------------------------------------------------- 
+ 
+﻿@using SmileScript
+@using SmileScript.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\_ViewStart.cshtml 
+-------------------------------------------------- 
+ 
+﻿@{
+    // THE FIX IS HERE: Added a '?' to safely check if User.Identity is null.
+    if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Author")))
+    {
+        Layout = "_Layout"; // The AdminLTE layout
+    }
+    else
+    {
+        Layout = "_PublicLayout"; // The new public layout
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\Blog\Details.cshtml 
+-------------------------------------------------- 
+ 
+﻿@model SmileScript.Models.BlogPost
+@using Markdig
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <article>
+                <header class="mb-4">
+                    <h1 class="fw-bolder mb-1">@Model.Title</h1>
+                    <div class="text-muted fst-italic mb-2">
+                        Posted on @Model.CreatedDate.ToLongDateString() by @Model.Author.Email
+                    </div>
+                    <a class="badge bg-secondary text-decoration-none link-light" href="#!">@Model.Category.Name</a>
+                </header>
+
+                @if (!string.IsNullOrEmpty(Model.HeaderImageUrl))
+                {
+                    <figure class="mb-4">
+                        <img class="img-fluid rounded" src="@Model.HeaderImageUrl" alt="Header Image for @Model.Title" />
+                    </figure>
+                }
+
+                <!-- Post Content -->
+                <section class="mb-5">
+                    @{
+                        // --- THE FINAL, CORRECTED AND VERIFIED FIX IS HERE ---
+                        // UseAdvancedExtensions() is the correct method. My previous attempts
+                        // failed due to incorrect Razor syntax, not this method.
+                        var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+                        var htmlContent = Markdown.ToHtml(Model.Content ?? "", pipeline);
+                    }
+                    @Html.Raw(htmlContent)
+                </section>
+            </article>
+
+            <!-- Comment section will be added here -->
+
+        </div>
+    </div>
+</div> 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\BlogPosts\Create.cshtml 
+-------------------------------------------------- 
+ 
+﻿@model SmileScript.ViewModels.BlogPostViewModel
+
+@{
+    ViewData["Title"] = "Create Blog Post";
+}
+
+<h1>Create Blog Post</h1>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <!-- We still need the asp-action here as a fallback for when JS is disabled -->
+        <form id="post-form" asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="BlogPost.Title" class="control-label"></label>
+                <input asp-for="BlogPost.Title" class="form-control" />
+                <span asp-validation-for="BlogPost.Title" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="BlogPost.CategoryId" class="control-label">Category</label>
+                <select asp-for="BlogPost.CategoryId" class="form-control" asp-items="Model.CategoryList">
+                    <option value="">-- Select Category --</option>
+                </select>
+                <span asp-validation-for="BlogPost.CategoryId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="HeaderImage" class="control-label"></label>
+                <input asp-for="HeaderImage" class="form-control-file" />
+                <span asp-validation-for="HeaderImage" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="BlogPost.Content" class="control-label"></label>
+                <div id="editor-md-container">
+                    <textarea asp-for="BlogPost.Content" style="display:none;"></textarea>
+                </div>
+                <span asp-validation-for="BlogPost.Content" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-3">
+                <button id="submit-button" type="submit" class="btn btn-primary">Create</button>
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var editor = editormd("editor-md-container", {
+                width: "100%",
+                height: 640,
+                path: "https://cdn.jsdelivr.net/npm/editor.md@1.5.0/lib/",
+                saveHTMLToTextarea: true,
+                imageUpload: true,
+                imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+                imageUploadURL: "/BlogPosts/UploadImage"
+            });
+
+            // --- THE FINAL, GUARANTEED FIX ---
+            $("#submit-button").on('click', function (e) {
+                // 1. Prevent all default actions
+                e.preventDefault();
+
+                // 2. Sync the textarea content
+                var markdownContent = editor.getMarkdown();
+                $("#BlogPost_Content").val(markdownContent);
+
+                // 3. Forcefully set the correct destination URL
+                $("#post-form").attr('action', '/BlogPosts/Create');
+
+                // 4. Submit the form
+                $("#post-form").submit();
+            });
+        });
+    </script>
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\BlogPosts\Edit.cshtml 
+-------------------------------------------------- 
+ 
+﻿@model SmileScript.ViewModels.BlogPostViewModel
+@using SmileScript.Enums
+
+@{
+    ViewData["Title"] = "Edit Blog Post";
+}
+
+<h1>Edit Blog Post</h1>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form id="post-form" asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="BlogPost.Id" />
+
+            <div class="form-group">
+                <label asp-for="BlogPost.Title" class="control-label"></label>
+                <input asp-for="BlogPost.Title" class="form-control" />
+                <span asp-validation-for="BlogPost.Title" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="BlogPost.CategoryId" class="control-label">Category</label>
+                <select asp-for="BlogPost.CategoryId" class="form-control" asp-items="Model.CategoryList"></select>
+                <span asp-validation-for="BlogPost.CategoryId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="HeaderImage" class="control-label"></label>
+                @if (!string.IsNullOrEmpty(Model.BlogPost.HeaderImageUrl))
+                {
+                    <p>Current Image: <img src="@Model.BlogPost.HeaderImageUrl" style="max-width: 200px;" /></p>
+                }
+                <input asp-for="HeaderImage" class="form-control-file" />
+                <span asp-validation-for="HeaderImage" class="text-danger"></span>
+            </div>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="form-group">
+                    <label asp-for="BlogPost.Status" class="control-label"></label>
+                    <select asp-for="BlogPost.Status" asp-items="Html.GetEnumSelectList<PostStatus>()" class="form-control"></select>
+                    <span asp-validation-for="BlogPost.Status" class="text-danger"></span>
+                </div>
+            }
+
+            <div class="form-group">
+                <label asp-for="BlogPost.Content" class="control-label"></label>
+                <div id="editor-md-container">
+                    <textarea asp-for="BlogPost.Content" style="display:none;">@Model.BlogPost.Content</textarea>
+                </div>
+                <span asp-validation-for="BlogPost.Content" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-3">
+                <button id="submit-button" type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script type="text/javascript">
+        $(function () {
+            var editor = editormd("editor-md-container", {
+                width: "100%",
+                height: 640,
+                path: "https://cdn.jsdelivr.net/npm/editor.md@1.5.0/lib/",
+                saveHTMLToTextarea: true,
+                imageUpload: true,
+                imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+                imageUploadURL: "/BlogPosts/UploadImage"
+            });
+
+            // --- THE FINAL, CORRECTED AND GUARANTEED FIX ---
+            $("#submit-button").on('click', function (e) {
+                // 1. Prevent all default actions
+                e.preventDefault();
+
+                // 2. Sync the textarea content
+                var markdownContent = editor.getMarkdown();
+                $("#BlogPost_Content").val(markdownContent);
+
+                // 3. Forcefully set the correct destination URL, including the post's ID
+                var postId = $("#BlogPost_Id").val();
+                $("#post-form").attr('action', '/BlogPosts/Edit/' + postId);
+
+                // 4. Submit the form
+                $("#post-form").submit();
+            });
+        });
+    </script>
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\BlogPosts\Index.cshtml 
+-------------------------------------------------- 
+ 
+﻿@model IEnumerable<SmileScript.Models.BlogPost>
+
+@{
+    ViewData["Title"] = "Blog Posts";
+}
+
+<h1><i class="bi bi-file-post"></i> Blog Posts</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create New Post</a>
+</p>
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Created Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                <td>@Html.DisplayFor(modelItem => item.Author.Email)</td>
+                <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Status)</td>
+                <td>@item.CreatedDate.ToShortDateString()</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm" title="Edit"><i class="bi bi-pencil"></i></a>
+                    <button type="button" class="btn btn-danger btn-sm delete-button" data-toggle="modal" data-target="#deleteModal" data-id="@item.Id" data-title="@item.Title" title="Delete">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the post: <strong id="postTitleToDelete"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" name="id" id="postIdToDelete" />
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // --- Script for Delete Modal ---
+            $('.delete-button').on('click', function () {
+                var postId = $(this).data('id');
+                var postTitle = $(this).data('title');
+
+                $('#postIdToDelete').val(postId);
+                $('#postTitleToDelete').text(postTitle);
+            });
+
+            // --- Script for Toast ---
+            var toastMessage = '@TempData["ToastMessage"]';
+            if (toastMessage) {
+                showToast(toastMessage, true);
+            }
+        });
+    </script>
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\Categories\Index.cshtml 
+-------------------------------------------------- 
+ 
+﻿@model IEnumerable<SmileScript.Models.Category>
+
+@{
+    ViewData["Title"] = "Category Management";
+}
+
+<h1><i class="bi bi-tags-fill"></i> Category Management</h1>
+
+<p>
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#createModal">
+        <i class="bi bi-plus-circle"></i> Create New Category
+    </button>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Slug</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Slug)</td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-sm edit-button"
+                            data-toggle="modal" data-target="#editModal"
+                            data-id="@item.Id" data-name="@item.Name" data-description="@item.Description" title="Edit">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm delete-button"
+                            data-toggle="modal" data-target="#deleteModal"
+                            data-id="@item.Id" data-name="@item.Name" title="Delete">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<!-- Create Modal -->
+<div class="modal fade" id="createModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form asp-action="Create">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="Name" class="control-label">Name</label>
+                        <input name="Name" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Description" class="control-label">Description</label>
+                        <textarea name="Description" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form asp-action="Edit" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editCategoryId" name="Id" />
+                    <div class="form-group">
+                        <label for="Name" class="control-label">Name</label>
+                        <input id="editCategoryName" name="Name" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Description" class="control-label">Description</label>
+                        <textarea id="editCategoryDescription" name="Description" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the category: <strong id="categoryNameToDelete"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" name="id" id="categoryIdToDelete" />
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // --- Script for Edit Modal ---
+            $('.edit-button').on('click', function () {
+                var categoryId = $(this).data('id');
+                var categoryName = $(this).data('name');
+                var categoryDescription = $(this).data('description');
+
+                $('#editCategoryId').val(categoryId);
+                $('#editCategoryName').val(categoryName);
+                $('#editCategoryDescription').val(categoryDescription);
+            });
+
+            // --- Script for Delete Modal ---
+            $('.delete-button').on('click', function () {
+                var categoryId = $(this).data('id');
+                var categoryName = $(this).data('name');
+
+                $('#categoryIdToDelete').val(categoryId);
+                $('#categoryNameToDelete').text(categoryName);
+            });
+
+            // --- Script for Toast ---
+            var toastMessage = '@TempData["ToastMessage"]';
+            if (toastMessage) {
+                showToast(toastMessage, true); // Assuming success for now
+            }
+        });
+    </script>
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\Dashboard\AdminDashboard.cshtml 
+-------------------------------------------------- 
+ 
+﻿@model SmileScript.ViewModels.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h1><i class="bi bi-person-fill-gear"></i> Admin Dashboard</h1>
+
+<!-- Info Boxes -->
+<div class="row">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>@Model.PostCount</h3>
+                <p>Total Posts</p>
+            </div>
+            <div class="icon"><i class="bi bi-file-post"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>@Model.CategoriesCount</h3>
+                <p>Categories</p>
+            </div>
+            <div class="icon"><i class="bi bi-tags-fill"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>@Model.UserCount</h3>
+                <p>User Registrations</p>
+            </div>
+            <div class="icon"><i class="bi bi-people-fill"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Posts Pending Review -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3 class="card-title">Posts Pending Review</h3>
+    </div>
+    <div class="card-body">
+        @if (!Model.PostsPendingReview.Any())
+        {
+            <p>No posts are currently pending review.</p>
+        }
+        else
+        {
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Date Submitted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var post in Model.PostsPendingReview)
+                    {
+                        <tr>
+                            <td>@post.Title</td>
+                            <td>@post.Author.Email</td>
+                            <td>@post.CreatedDate.ToShortDateString()</td>
+                            <td>
+                                <form asp-controller="BlogPosts" asp-action="Approve" asp-route-id="@post.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                </form>
+                                <form asp-controller="BlogPosts" asp-action="Reject" asp-route-id="@post.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                </form>
+                                <a asp-controller="BlogPosts" asp-action="Edit" asp-route-id="@post.Id" class="btn btn-info btn-sm">Review/Edit</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var toastMessage = '@TempData["ToastMessage"]';
+            if (toastMessage) {
+                showToast(toastMessage, true);
+            }
+        });
+    </script>
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\Dashboard\AuthorDashboard.cshtml 
+-------------------------------------------------- 
+ 
+﻿@model SmileScript.ViewModels.AuthorDashboardViewModel
+
+@{
+    ViewData["Title"] = "Author Dashboard";
+}
+
+<h1><i class="bi bi-pencil-square"></i> Author Dashboard</h1>
+<p>Welcome, Author! Here you can see a summary of your blog posts.</p>
+
+<div class="row">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>@Model.PublishedPostsCount</h3>
+                <p>Published Posts</p>
+            </div>
+            <div class="icon"><i class="bi bi-check-circle-fill"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>@Model.PendingPostsCount</h3>
+                <p>Pending Review</p>
+            </div>
+            <div class="icon"><i class="bi bi-hourglass-split"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>@Model.RejectedPostsCount</h3>
+                <p>Rejected Posts</p>
+            </div>
+            <div class="icon"><i class="bi bi-x-circle-fill"></i></div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-controller="BlogPosts" asp-action="Create" class="btn btn-primary btn-lg">
+        <i class="bi bi-plus-circle"></i> Create a New Post
+    </a>
+</div> 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\Home\Index.cshtml 
+-------------------------------------------------- 
+ 
+﻿@model IEnumerable<SmileScript.Models.BlogPost>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to SmileScript</h1>
+    <p>A modern blog built with ASP.NET Core.</p>
+</div>
+
+<div class="row">
+    @foreach (var post in Model)
+    {
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                @if (!string.IsNullOrEmpty(post.HeaderImageUrl))
+                {
+                    <a asp-controller="Blog" asp-action="Details" asp-route-slug="@post.Slug">
+                        <img src="@post.HeaderImageUrl" class="card-img-top" alt="Header Image for @post.Title">
+                    </a>
+                }
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">@post.Title</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">By @post.Author.Email on @post.CreatedDate.ToShortDateString()</h6>
+                    <p class="card-text flex-grow-1">A short description or excerpt will go here.</p>
+                    <a asp-controller="Blog" asp-action="Details" asp-route-slug="@post.Slug" class="btn btn-primary mt-auto">Read More</a>
+                </div>
+            </div>
+        </div>
+    }
+</div> 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\Home\Privacy.cshtml 
+-------------------------------------------------- 
+ 
+﻿@{
+    ViewData["Title"] = "Privacy Policy";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>Use this page to detail your site's privacy policy.</p>
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\Shared\Error.cshtml 
+-------------------------------------------------- 
+ 
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<h1 class="text-danger">Error.</h1>
+<h2 class="text-danger">An error occurred while processing your request.</h2>
+
+@if (Model.ShowRequestId)
+{
+    <p>
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    </p>
+}
+
+<h3>Development Mode</h3>
+<p>
+    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
+</p>
+<p>
+    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
+    It can result in displaying sensitive information from exceptions to end users.
+    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
+    and restarting the app.
+</p>
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\Shared\_Layout.cshtml 
+-------------------------------------------------- 
+ 
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SmileScript</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- AdminLTE css -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+
+    <!-- Editor.md CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/editor.md@1.5.0/css/editormd.min.css">
+
+    <!-- Your site's custom CSS (optional) -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+</head>
+<body class="hold-transition sidebar-mini">
+    <div class="wrapper">
+
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Left navbar links -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a asp-controller="Home" asp-action="Index" class="nav-link">Home</a>
+                </li>
+            </ul>
+
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+                <partial name="_LoginPartial" />
+            </ul>
+        </nav>
+        <!-- /.navbar -->
+        <!-- Main Sidebar Container -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <!-- Brand Logo -->
+            <a asp-controller="Home" asp-action="Index" class="brand-link">
+                <span class="brand-text font-weight-light">SmileScript</span>
+            </a>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+
+                <!-- Sidebar Menu -->
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+                        <li class="nav-item">
+                            <a asp-controller="Dashboard" asp-action="Index" class="nav-link">
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>Dashboard</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Home" asp-action="Privacy" class="nav-link">
+                                <i class="nav-icon fas fa-lock"></i>
+                                <p>Privacy</p>
+                            </a>
+                        </li>
+
+                        @if (User.IsInRole("Admin") || User.IsInRole("Author"))
+                        {
+                            <li class="nav-header">CONTENT</li>
+                            <li class="nav-item">
+                                <a asp-controller="BlogPosts" asp-action="Index" class="nav-link">
+                                    <i class="nav-icon bi bi-file-post"></i>
+                                    <p>Blog Posts</p>
+                                </a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-header">ADMINISTRATION</li>
+                            <li class="nav-item">
+                                <a asp-controller="UserManagement" asp-action="Index" class="nav-link">
+                                    <i class="nav-icon bi bi-people-fill"></i>
+                                    <p>User Management</p>
+                                </a>
+                            </li>
+
+
+                            <li class="nav-item">
+                                <a asp-controller="Categories" asp-action="Index" class="nav-link">
+                                    <i class="nav-icon bi bi-tags-fill"></i>
+                                    <p>Category Management</p>
+                                </a>
+                            </li>
+                        }
+
+
+                    </ul>
+                </nav>
+                <!-- /.sidebar-menu -->
+            </div>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Main content -->
+            <div class="content">
+                <div class="container-fluid pt-3">
+                    @RenderBody()
+                </div>
+            </div>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+        <!-- Main Footer -->
+        <footer class="main-footer">
+            <div class="float-right d-none d-sm-inline">
+                Anything you want
+            </div>
+            <strong>Copyright &copy; 2025 - SmileScript.</strong> All rights reserved.
+        </footer>
+    </div>
+    <!-- ./wrapper -->
+    <!-- REQUIRED SCRIPTS -->
+    <!-- jQuery -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <!-- ****************************************************** -->
+    <!-- THE FIX IS HERE: Replaced local Bootstrap 5 JS with Bootstrap 4 JS Bundle from a CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+    <!-- ****************************************************** -->
+    <!-- AdminLTE App -->
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+
+    <!-- Editor.md JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/editor.md@1.5.0/editormd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/editor.md@1.5.0/languages/en.js"></script>
+
+    <!-- Your site's custom JS -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- Toast Container -->
+    <div style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
+        <div id="toastContainer" style="min-width: 250px;"></div>
+    </div>
+
+    <script>
+        // Global function to show a toast message
+        function showToast(message, isSuccess) {
+            var toastHtml = `
+                <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000">
+                    <div class="toast-header">
+                        <strong class="mr-auto ${isSuccess ? 'text-success' : 'text-danger'}">
+                            ${isSuccess ? '<i class="bi bi-check-circle-fill"></i> Success' : '<i class="bi bi-x-circle-fill"></i> Error'}
+                        </strong>
+                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>`;
+            $('#toastContainer').append(toastHtml);
+            // Initialize and show the toast
+            $('.toast:last').toast('show');
+
+            // Remove the toast from the DOM after it's hidden
+            $('.toast').on('hidden.bs.toast', function () {
+                $(this).remove();
+            });
+        }
+    </script>
+</body>
+</html> 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\Shared\_Layout.cshtml.css 
+-------------------------------------------------- 
+ 
+﻿/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+a {
+  color: #0077cc;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.border-top {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+}
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\Shared\_LoginPartial.cshtml 
+-------------------------------------------------- 
+ 
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item">
+        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
+    </li>
+    <li class="nav-item">
+        <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button  type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+    </li>
+}
+</ul>
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\Shared\_PublicLayout.cshtml 
+-------------------------------------------------- 
+ 
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-g" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SmileScript</title>
+
+    <!-- Bootstrap CSS from CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Site CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">SmileScript</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - SmileScript - <a asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <!-- jQuery and Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html> 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\Shared\_ValidationScriptsPartial.cshtml 
+-------------------------------------------------- 
+ 
+﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+ 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\UserManagement\Create.cshtml 
+-------------------------------------------------- 
+ 
+﻿@model SmileScript.ViewModels.UserViewModel
+
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<h1><i class="bi bi-person-plus-fill"></i> Create New User</h1>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Role" class="control-label"></label>
+                <select asp-for="Role" asp-items="Model.Roles" class="form-control">
+                    <option value="">-- Select Role --</option>
+                </select>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-3">
+                <input type="submit" value="Create" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div> 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\UserManagement\Edit.cshtml 
+-------------------------------------------------- 
+ 
+﻿@model SmileScript.ViewModels.UserViewModel
+
+@{
+    ViewData["Title"] = "Edit User Role";
+}
+
+<h1>Edit User Role</h1>
+<h4>@Model.Email</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" readonly />
+            </div>
+            <div class="form-group">
+                <label asp-for="Role" class="control-label"></label>
+                <select asp-for="Role" asp-items="Model.Roles" class="form-control"></select>
+            </div>
+            <div class="form-group mt-3">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div> 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Views\UserManagement\Index.cshtml 
+-------------------------------------------------- 
+ 
+﻿@model IEnumerable<SmileScript.ViewModels.UserViewModel>
+
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<h1><i class="bi bi-people-fill"></i> User Management</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create New User</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                <td>@Html.DisplayFor(modelItem => item.Role)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm" title="Edit"><i class="bi bi-pencil"></i></a>
+                    <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-userid="@item.Id" data-useremail="@item.Email" title="Delete">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the user: <strong id="userEmailToDelete"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" name="id" id="userIdToDelete" />
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // --- FIX FOR MODAL ---
+            $('#deleteModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                var userId = button.data('userid');
+                var userEmail = button.data('useremail');
+
+                var modal = $(this);
+                modal.find('#userIdToDelete').val(userId);
+                modal.find('#userEmailToDelete').text(userEmail);
+            });
+
+            // --- SCRIPT FOR TOAST ---
+            var toastMessage = '@TempData["ToastMessage"]';
+            if (toastMessage) {
+                showToast(toastMessage, true);
+            }
+        });
+    </script>
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\ViewModels\AdminDashboardViewModel.cs 
+-------------------------------------------------- 
+ 
+﻿using SmileScript.Models;
+using System.Collections.Generic;
+
+namespace SmileScript.ViewModels
+{
+    public class AdminDashboardViewModel
+    {
+        public int UserCount { get; set; }
+        public int PostCount { get; set; }
+        public int CategoriesCount { get; set; }
+        public List<BlogPost> PostsPendingReview { get; set; } = new List<BlogPost>();
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\ViewModels\AuthorDashboardViewModel.cs 
+-------------------------------------------------- 
+ 
+﻿namespace SmileScript.ViewModels
+{
+    public class AuthorDashboardViewModel
+    {
+        public int PublishedPostsCount { get; set; }
+        public int PendingPostsCount { get; set; }
+        public int RejectedPostsCount { get; set; }
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\ViewModels\BlogPostViewModel.cs 
+-------------------------------------------------- 
+ 
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using SmileScript.Models;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace SmileScript.ViewModels
+{
+    public class BlogPostViewModel
+    {
+        public BlogPost BlogPost { get; set; } = new BlogPost();
+
+        [Display(Name = "Header Image")]
+        public IFormFile? HeaderImage { get; set; }
+
+        public IEnumerable<SelectListItem>? CategoryList { get; set; }
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\ViewModels\UserViewModel.cs 
+-------------------------------------------------- 
+ 
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace SmileScript.ViewModels
+{
+    public class UserViewModel
+    {
+        // FIX: Initialized to a non-null value
+        public string Id { get; set; } = string.Empty;
+
+        [Required]
+        [EmailAddress]
+        // FIX: Initialized to a non-null value
+        public string Email { get; set; } = string.Empty;
+
+        // Added for the create form
+        [Required(ErrorMessage = "Password is required for new users.")]
+        [DataType(DataType.Password)]
+        public string? Password { get; set; }
+
+        [Required]
+        // FIX: Initialized to a non-null value
+        public string Role { get; set; } = string.Empty;
+
+        public IEnumerable<SelectListItem>? Roles { get; set; }
+    }
+} 
+ 
+-------------------------------------------------- 
+  File: C:\my-folder\asp-net-core-mvc-project-folder\SmileScript\SmileScript\Enums\PostStatus.cs 
+-------------------------------------------------- 
+ 
+﻿namespace SmileScript.Enums
+{
+    public enum PostStatus
+    {
+        Draft,
+        PendingReview,
+        Published,
+        Rejected
+    }
+} 
+ 
+ 
+Exporting individual files... 
+================================== 
+ 
+-------------------------------------------------- 
+  File: appsettings.json 
+-------------------------------------------------- 
+ 
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=aspnet-SmileScript-da8c7ef1-2ee3-4530-9f2b-0ff8626275d9;Trusted_Connection=True;MultipleActiveResultSets=true"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}
+ 
+ 
+-------------------------------------------------- 
+  File: Program.cs 
+-------------------------------------------------- 
+ 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using SmileScript.Data;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(connectionString));
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddControllersWithViews();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseMigrationsEndPoint();
+}
+else
+{
+    app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapRazorPages();
+
+
+// Seed the database with roles and default users
+await DbInitializer.Initialize(app);
+
+app.Run(); 
+ 

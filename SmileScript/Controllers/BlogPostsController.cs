@@ -78,7 +78,8 @@ namespace SmileScript.Controllers
                 if (model.HeaderImage != null)
                 {
                     string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "images/headers");
-                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + model.HeaderImage.FileName;
+                    // *** FIXED: Replaced spaces in the filename with hyphens ***
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + model.HeaderImage.FileName.Replace(" ", "-");
                     string filePath = Path.Combine(uploadsDir, uniqueFileName);
                     await using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
@@ -162,7 +163,8 @@ namespace SmileScript.Controllers
                     if (model.HeaderImage != null)
                     {
                         string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "images/headers");
-                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + model.HeaderImage.FileName;
+                        // *** FIXED: Replaced spaces in the filename with hyphens ***
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + model.HeaderImage.FileName.Replace(" ", "-");
                         string filePath = Path.Combine(uploadsDir, uniqueFileName);
                         await using (var fileStream = new FileStream(filePath, FileMode.Create))
                         {
@@ -228,7 +230,8 @@ namespace SmileScript.Controllers
             try
             {
                 string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "images/posts");
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+                // *** FIXED: Replaced spaces in the filename with hyphens ***
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName).Replace(" ", "-");
                 string filePath = Path.Combine(uploadsDir, uniqueFileName);
                 await using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {

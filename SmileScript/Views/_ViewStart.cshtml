@@ -1,3 +1,11 @@
 ﻿@{
-    Layout = "_Layout";
+    // THE FIX IS HERE: Added a '?' to safely check if User.Identity is null.
+    if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Author")))
+    {
+        Layout = "_Layout"; // The AdminLTE layout
+    }
+    else
+    {
+        Layout = "_PublicLayout"; // The new public layout
+    }
 }

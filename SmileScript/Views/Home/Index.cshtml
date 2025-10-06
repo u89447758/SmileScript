@@ -1,8 +1,32 @@
-﻿@{
+﻿@model IEnumerable<SmileScript.Models.BlogPost>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Welcome to SmileScript</h1>
+    <p>A modern blog built with ASP.NET Core.</p>
+</div>
+
+<div class="row">
+    @foreach (var post in Model)
+    {
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                @if (!string.IsNullOrEmpty(post.HeaderImageUrl))
+                {
+                    <a asp-controller="Blog" asp-action="Details" asp-route-slug="@post.Slug">
+                        <img src="@post.HeaderImageUrl" class="card-img-top" alt="Header Image for @post.Title">
+                    </a>
+                }
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">@post.Title</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">By @post.Author.Email on @post.CreatedDate.ToShortDateString()</h6>
+                    <p class="card-text flex-grow-1">A short description or excerpt will go here.</p>
+                    <a asp-controller="Blog" asp-action="Details" asp-route-slug="@post.Slug" class="btn btn-primary mt-auto">Read More</a>
+                </div>
+            </div>
+        </div>
+    }
 </div>
