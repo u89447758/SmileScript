@@ -127,6 +127,52 @@
         </footer>
     </div>
     <!-- ./wrapper -->
+    <!-- =================================================================
+     MODAL SHELLS - Add this entire block to your layout files
+     ================================================================= -->
+    <!-- Generic Modal for Login, Register, etc. -->
+    <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="authModalLabel"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="authModalBody">
+                    <!-- Content will be loaded here via AJAX -->
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-labelledby="logoutConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logoutConfirmModalLabel">Confirm Logout</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to log out?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmLogoutButton">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- REQUIRED SCRIPTS -->
     <!-- jQuery -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -145,6 +191,8 @@
     <!-- Your site's custom JS -->
     <script src="~/js/site.js" asp-append-version="true"></script>
 
+    <script src="~/js/auth-modal.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 
     <!-- Toast Container -->
@@ -152,32 +200,6 @@
         <div id="toastContainer" style="min-width: 250px;"></div>
     </div>
 
-    <script>
-        // Global function to show a toast message
-        function showToast(message, isSuccess) {
-            var toastHtml = `
-                <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000">
-                    <div class="toast-header">
-                        <strong class="mr-auto ${isSuccess ? 'text-success' : 'text-danger'}">
-                            ${isSuccess ? '<i class="bi bi-check-circle-fill"></i> Success' : '<i class="bi bi-x-circle-fill"></i> Error'}
-                        </strong>
-                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="toast-body">
-                        ${message}
-                    </div>
-                </div>`;
-            $('#toastContainer').append(toastHtml);
-            // Initialize and show the toast
-            $('.toast:last').toast('show');
-
-            // Remove the toast from the DOM after it's hidden
-            $('.toast').on('hidden.bs.toast', function () {
-                $(this).remove();
-            });
-        }
-    </script>
+    
 </body>
 </html>
