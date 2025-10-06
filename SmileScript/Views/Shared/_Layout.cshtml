@@ -69,6 +69,17 @@
                             </a>
                         </li>
 
+                        @if (User.IsInRole("Admin") || User.IsInRole("Author"))
+                        {
+                            <li class="nav-header">CONTENT</li>
+                            <li class="nav-item">
+                                <a asp-controller="BlogPosts" asp-action="Index" class="nav-link">
+                                    <i class="nav-icon bi bi-file-post"></i>
+                                    <p>Blog Posts</p>
+                                </a>
+                            </li>
+                        }
+
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-header">ADMINISTRATION</li>

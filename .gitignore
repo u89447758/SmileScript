@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# --- SmileScript Custom Rules ---
+# Ignore user-uploaded header images for blog posts
+wwwroot/images/
