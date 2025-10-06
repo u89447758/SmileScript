@@ -364,4 +364,5 @@ FodyWeavers.xsd
 
 # --- SmileScript Custom Rules ---
 # Ignore user-uploaded header images for blog posts
-wwwroot/images/
+/wwwroot/images/
+/SmileScript/Exported_Source_Code-smilescript-02.txt
