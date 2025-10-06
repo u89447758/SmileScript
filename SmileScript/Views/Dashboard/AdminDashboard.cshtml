@@ -1,8 +1,94 @@
-﻿@{
+﻿@model SmileScript.ViewModels.AdminDashboardViewModel
+
+@{
     ViewData["Title"] = "Admin Dashboard";
 }
 
 <h1><i class="bi bi-person-fill-gear"></i> Admin Dashboard</h1>
-<p>Welcome, Administrator! Here you can manage users, categories, and all blog posts.</p>
 
-<!-- We will add stats and management panels here in a future step -->
+<!-- Info Boxes -->
+<div class="row">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>@Model.PostCount</h3>
+                <p>Total Posts</p>
+            </div>
+            <div class="icon"><i class="bi bi-file-post"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>@Model.CategoriesCount</h3>
+                <p>Categories</p>
+            </div>
+            <div class="icon"><i class="bi bi-tags-fill"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>@Model.UserCount</h3>
+                <p>User Registrations</p>
+            </div>
+            <div class="icon"><i class="bi bi-people-fill"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Posts Pending Review -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3 class="card-title">Posts Pending Review</h3>
+    </div>
+    <div class="card-body">
+        @if (!Model.PostsPendingReview.Any())
+        {
+            <p>No posts are currently pending review.</p>
+        }
+        else
+        {
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Date Submitted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var post in Model.PostsPendingReview)
+                    {
+                        <tr>
+                            <td>@post.Title</td>
+                            <td>@post.Author.Email</td>
+                            <td>@post.CreatedDate.ToShortDateString()</td>
+                            <td>
+                                <form asp-controller="BlogPosts" asp-action="Approve" asp-route-id="@post.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                </form>
+                                <form asp-controller="BlogPosts" asp-action="Reject" asp-route-id="@post.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                </form>
+                                <a asp-controller="BlogPosts" asp-action="Edit" asp-route-id="@post.Id" class="btn btn-info btn-sm">Review/Edit</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var toastMessage = '@TempData["ToastMessage"]';
+            if (toastMessage) {
+                showToast(toastMessage, true);
+            }
+        });
+    </script>
+}

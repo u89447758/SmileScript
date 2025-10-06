@@ -1,8 +1,44 @@
-﻿@{
+﻿@model SmileScript.ViewModels.AuthorDashboardViewModel
+
+@{
     ViewData["Title"] = "Author Dashboard";
 }
 
 <h1><i class="bi bi-pencil-square"></i> Author Dashboard</h1>
-<p>Welcome, Author! Here you can manage your blog posts and submit them for review.</p>
+<p>Welcome, Author! Here you can see a summary of your blog posts.</p>
 
-<!-- We will add post lists and stats here in a future step -->
+<div class="row">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>@Model.PublishedPostsCount</h3>
+                <p>Published Posts</p>
+            </div>
+            <div class="icon"><i class="bi bi-check-circle-fill"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>@Model.PendingPostsCount</h3>
+                <p>Pending Review</p>
+            </div>
+            <div class="icon"><i class="bi bi-hourglass-split"></i></div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>@Model.RejectedPostsCount</h3>
+                <p>Rejected Posts</p>
+            </div>
+            <div class="icon"><i class="bi bi-x-circle-fill"></i></div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-controller="BlogPosts" asp-action="Create" class="btn btn-primary btn-lg">
+        <i class="bi bi-plus-circle"></i> Create a New Post
+    </a>
+</div>

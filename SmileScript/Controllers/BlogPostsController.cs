@@ -241,5 +241,44 @@ namespace SmileScript.Controllers
                 return Json(new { success = 0, message = "An error occurred: " + ex.Message });
             }
         }
+
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var blogPost = await _context.BlogPosts.FindAsync(id);
+            if (blogPost == null)
+            {
+                return NotFound();
+            }
+
+            blogPost.Status = PostStatus.Published;
+            _context.Update(blogPost);
+            await _context.SaveChangesAsync();
+
+            TempData["ToastMessage"] = "Blog post has been approved and published!";
+            return RedirectToAction("AdminDashboard", "Dashboard");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reject(int id)
+        {
+            var blogPost = await _context.BlogPosts.FindAsync(id);
+            if (blogPost == null)
+            {
+                return NotFound();
+            }
+
+            blogPost.Status = PostStatus.Rejected;
+            _context.Update(blogPost);
+            await _context.SaveChangesAsync();
+
+            TempData["ToastMessage"] = "Blog post has been rejected.";
+            return RedirectToAction("AdminDashboard", "Dashboard");
+        }
     }
 }
