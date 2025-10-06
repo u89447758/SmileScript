@@ -1,0 +1,83 @@
+﻿@model IEnumerable<SmileScript.ViewModels.UserViewModel>
+
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<h1><i class="bi bi-people-fill"></i> User Management</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create New User</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                <td>@Html.DisplayFor(modelItem => item.Role)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm" title="Edit"><i class="bi bi-pencil"></i></a>
+                    <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-userid="@item.Id" data-useremail="@item.Email" title="Delete">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the user: <strong id="userEmailToDelete"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" name="id" id="userIdToDelete" />
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // --- FIX FOR MODAL ---
+            $('#deleteModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                var userId = button.data('userid');
+                var userEmail = button.data('useremail');
+
+                var modal = $(this);
+                modal.find('#userIdToDelete').val(userId);
+                modal.find('#userEmailToDelete').text(userEmail);
+            });
+
+            // --- SCRIPT FOR TOAST ---
+            var toastMessage = '@TempData["ToastMessage"]';
+            if (toastMessage) {
+                showToast(toastMessage, true);
+            }
+        });
+    </script>
+}

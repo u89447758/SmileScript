@@ -1,0 +1,164 @@
+﻿@model IEnumerable<SmileScript.Models.Category>
+
+@{
+    ViewData["Title"] = "Category Management";
+}
+
+<h1><i class="bi bi-tags-fill"></i> Category Management</h1>
+
+<p>
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#createModal">
+        <i class="bi bi-plus-circle"></i> Create New Category
+    </button>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Slug</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Slug)</td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-sm edit-button"
+                            data-toggle="modal" data-target="#editModal"
+                            data-id="@item.Id" data-name="@item.Name" data-description="@item.Description" title="Edit">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm delete-button"
+                            data-toggle="modal" data-target="#deleteModal"
+                            data-id="@item.Id" data-name="@item.Name" title="Delete">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<!-- Create Modal -->
+<div class="modal fade" id="createModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form asp-action="Create">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="Name" class="control-label">Name</label>
+                        <input name="Name" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Description" class="control-label">Description</label>
+                        <textarea name="Description" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form asp-action="Edit" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editCategoryId" name="Id" />
+                    <div class="form-group">
+                        <label for="Name" class="control-label">Name</label>
+                        <input id="editCategoryName" name="Name" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Description" class="control-label">Description</label>
+                        <textarea id="editCategoryDescription" name="Description" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the category: <strong id="categoryNameToDelete"></strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" name="id" id="categoryIdToDelete" />
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // --- Script for Edit Modal ---
+            $('.edit-button').on('click', function () {
+                var categoryId = $(this).data('id');
+                var categoryName = $(this).data('name');
+                var categoryDescription = $(this).data('description');
+
+                $('#editCategoryId').val(categoryId);
+                $('#editCategoryName').val(categoryName);
+                $('#editCategoryDescription').val(categoryDescription);
+            });
+
+            // --- Script for Delete Modal ---
+            $('.delete-button').on('click', function () {
+                var categoryId = $(this).data('id');
+                var categoryName = $(this).data('name');
+
+                $('#categoryIdToDelete').val(categoryId);
+                $('#categoryNameToDelete').text(categoryName);
+            });
+
+            // --- Script for Toast ---
+            var toastMessage = '@TempData["ToastMessage"]';
+            if (toastMessage) {
+                showToast(toastMessage, true); // Assuming success for now
+            }
+        });
+    </script>
+}
