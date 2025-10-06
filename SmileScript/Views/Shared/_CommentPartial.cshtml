@@ -1,0 +1,14 @@
+﻿@model SmileScript.Models.Comment
+
+<div class="d-flex mb-3">
+    <div class="flex-shrink-0">
+        @* A simple placeholder icon for the user avatar *@
+        <i class="bi bi-person-circle" style="font-size: 2.5rem;"></i>
+    </div>
+    <div class="ms-3 w-100">
+        <div class="fw-bold">@Model.Author.Email</div>
+        <div class="text-muted small">@Model.CreatedDate.ToString("MMMM dd, yyyy 'at' hh:mm tt")</div>
+        <p class="mt-2 mb-0">@Model.Content</p>
+    </div>
+</div>
+<hr />

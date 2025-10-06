@@ -1,8 +1,11 @@
-﻿@model SmileScript.Models.BlogPost
+﻿@model SmileScript.ViewModels.BlogPostDetailViewModel
 @using Markdig
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<IdentityUser> SignInManager
 
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = Model.BlogPost.Title;
 }
 
 <div class="container mt-5">
@@ -10,35 +13,130 @@
         <div class="col-lg-10 mx-auto">
             <article>
                 <header class="mb-4">
-                    <h1 class="fw-bolder mb-1">@Model.Title</h1>
+                    <h1 class="fw-bolder mb-1">@Model.BlogPost.Title</h1>
                     <div class="text-muted fst-italic mb-2">
-                        Posted on @Model.CreatedDate.ToLongDateString() by @Model.Author.Email
+                        Posted on @Model.BlogPost.CreatedDate.ToLongDateString() by @Model.BlogPost.Author.Email
                     </div>
-                    <a class="badge bg-secondary text-decoration-none link-light" href="#!">@Model.Category.Name</a>
+                    <a class="badge bg-secondary text-decoration-none link-light" href="#!">@Model.BlogPost.Category.Name</a>
                 </header>
 
-                @if (!string.IsNullOrEmpty(Model.HeaderImageUrl))
+                @if (!string.IsNullOrEmpty(Model.BlogPost.HeaderImageUrl))
                 {
                     <figure class="mb-4">
-                        <img class="img-fluid rounded" src="@Model.HeaderImageUrl" alt="Header Image for @Model.Title" />
+                        <img class="img-fluid rounded" src="@Model.BlogPost.HeaderImageUrl" alt="Header Image for @Model.BlogPost.Title" />
                     </figure>
                 }
 
                 <!-- Post Content -->
                 <section class="mb-5">
                     @{
-                        // --- THE FINAL, CORRECTED AND VERIFIED FIX IS HERE ---
-                        // UseAdvancedExtensions() is the correct method. My previous attempts
-                        // failed due to incorrect Razor syntax, not this method.
                         var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
-                        var htmlContent = Markdown.ToHtml(Model.Content ?? "", pipeline);
+                        var htmlContent = Markdown.ToHtml(Model.BlogPost.Content ?? "", pipeline);
                     }
                     @Html.Raw(htmlContent)
                 </section>
             </article>
 
-            <!-- Comment section will be added here -->
+            <!-- *** NEW COMMENT SECTION STARTS HERE *** -->
+            <section class="mb-5">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <!-- Comment form -->
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <form id="comment-form" asp-controller="Comments" asp-action="Create" method="post">
+                                @* Add anti-forgery token for security *@
+                                @Html.AntiForgeryToken()
 
+                                @* Hidden input to pass the BlogPostId to the controller *@
+                                <input type="hidden" name="blogPostId" value="@Model.BlogPost.Id" />
+
+                                <div class="form-group">
+                                    <textarea class="form-control" name="content" rows="3" placeholder="Join the discussion and leave a comment!"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-2">Submit</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="text-center">
+                                <p>Please <a asp-area="Identity" asp-page="/Account/Login">log in</a> to post a comment.</p>
+                            </div>
+                        }
+
+                        <hr />
+
+                        <!-- Comments list container -->
+                        <div id="comments-list">
+                            @if (Model.Comments.Any())
+                            {
+                                foreach (var comment in Model.Comments)
+                                {
+                                    <partial name="_CommentPartial" model="comment" />
+                                }
+                            }
+                            else
+                            {
+                                <p id="no-comments-message">Be the first to comment!</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 </div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Find the comment form on the page.
+            var commentForm = $('#comment-form');
+
+            // Attach a function to the form's 'submit' event.
+            commentForm.on('submit', function (e) {
+                // 1. Prevent the default browser action, which is a full page reload.
+                e.preventDefault();
+
+                // 2. Serialize the form data into a format suitable for AJAX.
+                var formData = $(this).serialize();
+                // Get the URL from the form's 'action' attribute.
+                var formUrl = $(this).attr('action');
+
+                // 3. Send the data to the server using an AJAX POST request.
+                $.ajax({
+                    type: 'POST',
+                    url: formUrl,
+                    data: formData,
+                    success: function (response) {
+                        // This function runs if the server returns a 200 OK response.
+                        if (response.success) {
+                            // Call the global 'showToast' function with the success message.
+                            showToast(response.message, true);
+
+                            // Clear the textarea after successful submission.
+                            commentForm.find('textarea').val('');
+
+                            // Because we don't have the newly created comment's HTML,
+                            // the simplest robust solution is to reload the page to see the new comment.
+                            // This ensures the comment list is always accurate.
+                            // A more advanced solution would involve returning and appending a partial view.
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1500); // Reload after 1.5 seconds to allow user to read the toast.
+
+                        } else {
+                            // If the server indicates failure, show an error toast.
+                            showToast(response.message, false);
+                        }
+                    },
+                    error: function () {
+                        // This function runs if the AJAX call itself fails (e.g., network error).
+                        showToast('An unexpected error occurred. Please try again.', false);
+                    }
+                });
+            });
+        });
+    </script>
+}
