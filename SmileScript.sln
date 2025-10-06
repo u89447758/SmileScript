@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmileScript", "SmileScript\SmileScript.csproj", "{4FB58558-073A-4496-A765-58E45D21FB84}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4FB58558-073A-4496-A765-58E45D21FB84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FB58558-073A-4496-A765-58E45D21FB84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FB58558-073A-4496-A765-58E45D21FB84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FB58558-073A-4496-A765-58E45D21FB84}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {49ABBED6-630E-427B-B386-E25023496A5D}
+	EndGlobalSection
+EndGlobal
