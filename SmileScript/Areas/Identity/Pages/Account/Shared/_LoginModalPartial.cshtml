@@ -1,32 +1,46 @@
 ﻿@model SmileScript.Areas.Identity.Pages.Account.LoginModel
 
 <form id="loginForm" asp-area="Identity" asp-page="/Account/Login" method="post">
+
+    <!-- Modern Header with Icon -->
+    <div class="auth-modal-header">
+        <i class="bi bi-person-circle"></i>
+    </div>
+
     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-    <div class="form-floating mb-3">
-        <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-        <label asp-for="Input.Email" class="form-label">Email</label>
-        <span asp-validation-for="Input.Email" class="text-danger"></span>
+
+    <!-- Email Input Group -->
+    <div class="input-group-modern mb-3">
+        <i class="bi bi-envelope input-icon"></i>
+        <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="Email" />
     </div>
-    <div class="form-floating mb-3">
-        <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-        <label asp-for="Input.Password" class="form-label">Password</label>
-        <span asp-validation-for="Input.Password" class="text-danger"></span>
+    <span asp-validation-for="Input.Email" class="text-danger d-block mb-2"></span>
+
+    <!-- Password Input Group -->
+    <div class="input-group-modern mb-3">
+        <i class="bi bi-lock input-icon"></i>
+        <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Password" />
+        <button type="button" class="password-toggle">
+            <i class="bi bi-eye"></i>
+        </button>
     </div>
-    <div class="checkbox mb-3">
-        <label asp-for="Input.RememberMe" class="form-label">
+    <span asp-validation-for="Input.Password" class="text-danger d-block mb-2"></span>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="form-check">
             <input class="form-check-input" asp-for="Input.RememberMe" />
-            @Html.DisplayNameFor(m => m.Input.RememberMe)
-        </label>
+            <label asp-for="Input.RememberMe" class="form-check-label">
+                @Html.DisplayNameFor(m => m.Input.RememberMe)
+            </label>
+        </div>
+        <a href="#" class="forgot-password-modal-trigger small">Forgot password?</a>
     </div>
+
     <div>
-        <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
+        <button id="login-submit" type="submit" class="w-100 btn btn-primary">Log In</button>
     </div>
+
     <div class="mt-3 text-center">
-        <p>
-            <a href="#" class="forgot-password-modal-trigger">Forgot your password?</a>
-        </p>
-        <p>
-            <a href="#" class="register-modal-trigger">Register as a new user</a>
-        </p>
+        <p class="small">Don't have an account? <a href="#" class="register-modal-trigger">Sign Up</a></p>
     </div>
 </form>
