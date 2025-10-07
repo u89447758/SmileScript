@@ -1,0 +1,11 @@
+﻿@model IEnumerable<SmileScript.Models.Category>
+
+@foreach (var category in Model)
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark"
+           asp-controller="Home"
+           asp-action="Category"
+           asp-route-slug="@category.Slug">@category.Name</a>
+    </li>
+}
