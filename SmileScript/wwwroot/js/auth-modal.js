@@ -4,6 +4,30 @@
     var authModalBody = $('#authModalBody');
     var loadingSpinner = '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>';
 
+    // --- START: New code for Show/Hide Password ---
+    // Use event delegation on the document to handle clicks for elements
+    // that are loaded dynamically into the auth modal.
+    $(document).on('click', '.password-toggle', function () {
+        // Find the input field that is a direct sibling before this button.
+        var input = $(this).siblings('input');
+        // Find the icon element inside this button.
+        var icon = $(this).find('i');
+
+        // Check the current type of the input field.
+        if (input.attr('type') === 'password') {
+            // If it's a password, change it to text to show it.
+            input.attr('type', 'text');
+            // Change the icon to the "slashed" version.
+            icon.removeClass('bi-eye').addClass('bi-eye-slash');
+        } else {
+            // If it's text, change it back to password to hide it.
+            input.attr('type', 'password');
+            // Change the icon back to the "open" version.
+            icon.removeClass('bi-eye-slash').addClass('bi-eye');
+        }
+    });
+    // --- END: New code for Show/Hide Password ---
+
     function loadAuthModal(url, title) {
         authModalTitle.text(title);
         authModalBody.html(loadingSpinner);

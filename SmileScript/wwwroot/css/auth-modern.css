@@ -1,2 +1,125 @@
-﻿body {
+﻿/* =================================================================
+   MODERN AUTH MODAL STYLES (auth-modern.css)
+   ================================================================= */
+
+/* --- General Modal Body Styling --- */
+#authModalBody {
+    padding: 1rem 2rem 2rem 2rem; /* More horizontal padding */
+}
+
+/* --- Modal Header & Icon --- */
+.auth-modal-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+    .auth-modal-header i {
+        font-size: 4rem; /* Large icon */
+        color: #007bff; /* Primary blue, or your brand color */
+        line-height: 1;
+    }
+
+/* --- Modern Input Group --- */
+/* This is the container for the icon and the input field */
+.input-group-modern {
+    position: relative; /* Crucial for positioning the icon and button */
+}
+
+    /* The icon inside the input field */
+    .input-group-modern .input-icon {
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        transform: translateY(-50%);
+        color: #ced4da; /* A light grey color */
+        font-size: 1.1rem;
+        pointer-events: none; /* Allows clicks to go through to the input */
+        z-index: 3;
+    }
+
+    /* --- Input Field & Placeholder Styling --- */
+    /* Style for the actual <input> element */
+    .input-group-modern .form-control {
+        padding-left: 45px; /* Creates space for the icon on the left */
+        height: 50px; /* Taller input fields */
+        border-radius: 8px; /* Slightly rounded corners */
+        border: 1px solid #ced4da;
+        transition: all 0.2s ease-in-out;
+    }
+
+        /* Custom focus style to highlight the icon and border */
+        .input-group-modern .form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+        }
+
+            .input-group-modern .form-control:focus + .password-toggle,
+            .input-group-modern .form-control:focus ~ .input-icon {
+                color: #007bff; /* Change icon color on focus */
+            }
+
+
+/* --- Password Show/Hide Toggle --- */
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    z-index: 3;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #adb5bd; /* A slightly darker grey */
+    font-size: 1.2rem;
+    padding: 0.25rem;
+    line-height: 1;
+}
+
+    .password-toggle:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+/* We need to add padding to the right of password fields to avoid text overlapping the button */
+.input-group-modern input[type="password"],
+.input-group-modern input[type="text"] {
+    padding-right: 45px;
+}
+
+
+/* --- Checkbox & Links --- */
+.form-check-label,
+.small {
+    font-size: 0.875rem; /* A bit smaller for secondary text */
+}
+
+a.small, a.small:hover {
+    color: #007bff;
+    text-decoration: none;
+}
+
+    a.small:hover {
+        text-decoration: underline;
+    }
+
+
+/* --- Primary Button --- */
+#authModalBody .btn-primary {
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+    #authModalBody .btn-primary:hover {
+        background-color: #0069d9;
+    }
+
+/* --- Validation Message Spacing --- */
+/* Adjust spacing for validation messages */
+.text-danger.d-block.mb-2 {
+    margin-top: -0.75rem; /* Pull the message up slightly */
+    font-size: 0.8rem;
+    padding-left: 5px;
 }
