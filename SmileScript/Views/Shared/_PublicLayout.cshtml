@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-g" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SmileScript</title>
 
@@ -14,36 +14,44 @@
     <link rel="stylesheet" href="~/css/auth-modern.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/public-modern.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+<body class="public-body">
+    <header class="public-header">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white">
             <div class="container">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">SmileScript</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                <!-- Modern Logo / Brand -->
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-code-slash"></i> SmileScript
+                </a>
+
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#publicNavbar" aria-controls="publicNavbar"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div class="collapse navbar-collapse" id="publicNavbar">
+                    <!-- Left side of Navbar: Home + Dynamic Categories -->
+                    <ul class="navbar-nav mr-auto">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+                        <!-- This is where the dynamic categories will be rendered by our View Component -->
+                        @await Component.InvokeAsync("Categories")
                     </ul>
+
+                    <!-- Right side of Navbar: Login/Register links -->
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
+
+    <div class="container public-main-container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <!-- =================================================================
-         TOAST CONTAINER - Add this to your public layout
-         ================================================================= -->
-    <!-- Toast Container -->
+    <!-- TOAST CONTAINER -->
     <div style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
         <div id="toastContainer" style="min-width: 250px;"></div>
     </div>
@@ -91,9 +99,9 @@
         </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - SmileScript - <a asp-action="Privacy">Privacy</a>
+    <footer class="public-footer">
+        <div class="container text-center">
+            &copy; 2025 - SmileScript - <a asp-action="Privacy">Privacy Policy</a>
         </div>
     </footer>
 
