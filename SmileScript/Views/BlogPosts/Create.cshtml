@@ -4,50 +4,75 @@
     ViewData["Title"] = "Create Blog Post";
 }
 
-<h1>Create Blog Post</h1>
-<hr />
-<div class="row">
-    <div class="col-md-12">
-        <!-- We still need the asp-action here as a fallback for when JS is disabled -->
-        <form id="post-form" asp-action="Create" enctype="multipart/form-data">
-            <div asp-validation-summary="All" class="text-danger"></div>
+<!-- We use a hidden form tag that wraps the entire layout -->
+<form id="post-form" asp-action="Create" enctype="multipart/form-data">
+    <div class="row">
+        <!-- Main Content Column (2/3 width) -->
+        <div class="col-md-8">
+            <div class="card card-primary card-outline">
+                <div class="card-body">
+                    <div class="form-group">
+                        <label asp-for="BlogPost.Title" class="control-label"></label>
+                        <input asp-for="BlogPost.Title" class="form-control form-control-lg" placeholder="Enter post title here" />
+                        <span asp-validation-for="BlogPost.Title" class="text-danger"></span>
+                    </div>
 
-            <div class="form-group">
-                <label asp-for="BlogPost.Title" class="control-label"></label>
-                <input asp-for="BlogPost.Title" class="form-control" />
-                <span asp-validation-for="BlogPost.Title" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="BlogPost.CategoryId" class="control-label">Category</label>
-                <select asp-for="BlogPost.CategoryId" class="form-control" asp-items="Model.CategoryList">
-                    <option value="">-- Select Category --</option>
-                </select>
-                <span asp-validation-for="BlogPost.CategoryId" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="HeaderImage" class="control-label"></label>
-                <input asp-for="HeaderImage" class="form-control-file" />
-                <span asp-validation-for="HeaderImage" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="BlogPost.Content" class="control-label"></label>
-                <div id="editor-md-container">
-                    <textarea asp-for="BlogPost.Content" style="display:none;"></textarea>
+                    <div class="form-group">
+                        <label asp-for="BlogPost.Content" class="control-label"></label>
+                        <div id="editor-md-container">
+                            <textarea asp-for="BlogPost.Content" style="display:none;"></textarea>
+                        </div>
+                        <span asp-validation-for="BlogPost.Content" class="text-danger"></span>
+                    </div>
                 </div>
-                <span asp-validation-for="BlogPost.Content" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Sidebar Settings Column (1/3 width) -->
+        <div class="col-md-4">
+            <!-- Publish Card -->
+            <div class="card card-primary card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">Actions</h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <button id="submit-button" type="submit" class="btn btn-primary btn-block">Create</button>
+                        <a asp-action="Index" class="btn btn-secondary btn-block mt-2">Back to List</a>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group mt-3">
-                <button id="submit-button" type="submit" class="btn btn-primary">Create</button>
-                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            <!-- Category Card -->
+            <div class="card card-primary card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">Category</h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <select asp-for="BlogPost.CategoryId" class="form-control" asp-items="Model.CategoryList">
+                            <option value="">-- Select Category --</option>
+                        </select>
+                        <span asp-validation-for="BlogPost.CategoryId" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-        </form>
+
+            <!-- Header Image Card -->
+            <div class="card card-primary card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">Header Image</h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <input asp-for="HeaderImage" class="form-control-file" />
+                        <span asp-validation-for="HeaderImage" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-
+</form>
 
 @section Scripts {
     @{
@@ -65,19 +90,12 @@
                 imageUploadURL: "/BlogPosts/UploadImage"
             });
 
-            // --- THE FINAL, GUARANTEED FIX ---
+            // This script logic remains the same and is compatible
             $("#submit-button").on('click', function (e) {
-                // 1. Prevent all default actions
                 e.preventDefault();
-
-                // 2. Sync the textarea content
                 var markdownContent = editor.getMarkdown();
                 $("#BlogPost_Content").val(markdownContent);
-
-                // 3. Forcefully set the correct destination URL
                 $("#post-form").attr('action', '/BlogPosts/Create');
-
-                // 4. Submit the form
                 $("#post-form").submit();
             });
         });
