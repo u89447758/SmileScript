@@ -12,7 +12,8 @@
     </button>
 </p>
 
-<table class="table table-bordered table-striped">
+<!-- 1. ADDED an ID to the table tag -->
+<table id="categoriesTable" class="table table-bordered table-striped" style="width:100%">
     <thead>
         <tr>
             <th>Name</th>
@@ -44,7 +45,7 @@
 </table>
 
 
-<!-- Create Modal -->
+<!-- Create Modal (Unchanged) -->
 <div class="modal fade" id="createModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -74,7 +75,7 @@
     </div>
 </div>
 
-<!-- Edit Modal -->
+<!-- Edit Modal (Unchanged) -->
 <div class="modal fade" id="editModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -106,7 +107,7 @@
 </div>
 
 
-<!-- Delete Confirmation Modal -->
+<!-- Delete Confirmation Modal (Unchanged) -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -131,10 +132,14 @@
 </div>
 
 
+<!-- 2. ADDED the Scripts section to initialize DataTables -->
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // --- Script for Edit Modal ---
+            // This one line of code activates all the DataTables features!
+            $('#categoriesTable').DataTable();
+
+            // The rest of the script for the modals and toast remains the same
             $('.edit-button').on('click', function () {
                 var categoryId = $(this).data('id');
                 var categoryName = $(this).data('name');
@@ -145,7 +150,6 @@
                 $('#editCategoryDescription').val(categoryDescription);
             });
 
-            // --- Script for Delete Modal ---
             $('.delete-button').on('click', function () {
                 var categoryId = $(this).data('id');
                 var categoryName = $(this).data('name');
@@ -154,7 +158,6 @@
                 $('#categoryNameToDelete').text(categoryName);
             });
 
-            // --- Script for Toast ---
             var toastMessage = '@TempData["ToastMessage"]';
             if (toastMessage) {
                 showToast(toastMessage, true); // Assuming success for now

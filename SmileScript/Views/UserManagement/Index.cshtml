@@ -10,7 +10,8 @@
     <a asp-action="Create" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create New User</a>
 </p>
 
-<table class="table table-bordered table-striped">
+<!-- 1. ADDED an ID to the table tag -->
+<table id="usersTable" class="table table-bordered table-striped" style="width:100%">
     <thead>
         <tr>
             <th>Email</th>
@@ -35,7 +36,7 @@
     </tbody>
 </table>
 
-<!-- Delete Confirmation Modal -->
+<!-- Delete Confirmation Modal (Unchanged) -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -59,10 +60,14 @@
     </div>
 </div>
 
+<!-- 2. ADDED the Scripts section to initialize DataTables -->
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // --- FIX FOR MODAL ---
+            // This one line of code activates all the DataTables features!
+            $('#usersTable').DataTable();
+
+            // The rest of the script for the delete modal and toast remains the same
             $('#deleteModal').on('show.bs.modal', function (event) {
                 var button = $(event.relatedTarget); // Button that triggered the modal
                 var userId = button.data('userid');
@@ -73,7 +78,6 @@
                 modal.find('#userEmailToDelete').text(userEmail);
             });
 
-            // --- SCRIPT FOR TOAST ---
             var toastMessage = '@TempData["ToastMessage"]';
             if (toastMessage) {
                 showToast(toastMessage, true);
