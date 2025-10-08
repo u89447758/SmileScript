@@ -1,2 +1,56 @@
-﻿body {
+﻿/* =================================================================
+   MODERN ADMIN STYLES (admin-modern.css)
+   ================================================================= */
+
+/* --- Status Badge Styles for DataTables --- */
+/* Provides clear, color-coded feedback for post statuses */
+
+.badge.status-published {
+    background-color: #28a745; /* Green */
+    color: white;
+}
+
+.badge.status-pending {
+    background-color: #ffc107; /* Yellow */
+    color: #212529; /* Dark text for better contrast on yellow */
+}
+
+.badge.status-rejected {
+    background-color: #dc3545; /* Red */
+    color: white;
+}
+
+.badge.status-draft {
+    background-color: #6c757d; /* Grey */
+    color: white;
+}
+
+
+/* --- Two-Column Editor Layout Enhancements --- */
+
+/* Increase the font size of the title input for better focus */
+.form-control-lg {
+    font-size: 1.5rem;
+    padding: 1.5rem 1rem;
+}
+
+/* Ensure cards in the sidebar have some space between them */
+.col-md-4 .card {
+    margin-bottom: 1.25rem;
+}
+
+/* AdminLTE v3.2 has an issue where card-outline header has no bottom border.
+   This rule fixes that for a cleaner look. */
+.card.card-primary.card-outline {
+    border-top: 3px solid #007bff;
+}
+
+.card.card-outline .card-header {
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+/* Make the action buttons in the sidebar more prominent */
+.btn-block {
+    padding: 10px;
+    font-weight: 600;
 }
