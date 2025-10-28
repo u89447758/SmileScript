@@ -7,10 +7,10 @@
 <h1><i class="bi bi-people-fill"></i> User Management</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create New User</a>
+    <!-- MODIFIED: Changed this from a link to a button and gave it an ID for our JS to target -->
+    <button type="button" id="createUserBtn" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create New User</button>
 </p>
 
-<!-- 1. ADDED an ID to the table tag -->
 <table id="usersTable" class="table table-bordered table-striped" style="width:100%">
     <thead>
         <tr>
@@ -19,24 +19,43 @@
             <th>Actions</th>
         </tr>
     </thead>
+    <!-- MODIFIED: The server-side Razor loop has been completely removed. -->
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.Email)</td>
-                <td>@Html.DisplayFor(modelItem => item.Role)</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm" title="Edit"><i class="bi bi-pencil"></i></a>
-                    <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-userid="@item.Id" data-useremail="@item.Email" title="Delete">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        }
+        <!-- JavaScript will populate this section. We add a loading row as a placeholder. -->
+        <tr>
+            <td colspan="3" class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </td>
+        </tr>
     </tbody>
 </table>
 
-<!-- Delete Confirmation Modal (Unchanged) -->
+<!-- START: ADDED MODAL SHELL -->
+<!-- This modal will be used for both creating and editing users. -->
+<div class="modal fade" id="userFormModal" tabindex="-1" role="dialog" aria-labelledby="userFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userFormModalLabel">Modal Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="userFormModalBody">
+                <!-- The partial view with the form will be loaded here via AJAX -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <!-- This button's text and action will be controlled by JavaScript -->
+                <button type="button" id="saveUserBtn" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal (this remains unchanged) -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -51,37 +70,15 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form asp-action="Delete" method="post" class="d-inline">
-                    <input type="hidden" name="id" id="userIdToDelete" />
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
+                <!-- MODIFIED: Removed the form tag and added an ID to the button for our JS -->
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
             </div>
         </div>
     </div>
 </div>
-
-<!-- 2. ADDED the Scripts section to initialize DataTables -->
+<!-- END: ADDED MODAL SHELL -->
 @section Scripts {
-    <script>
-        $(document).ready(function () {
-            // This one line of code activates all the DataTables features!
-            $('#usersTable').DataTable();
-
-            // The rest of the script for the delete modal and toast remains the same
-            $('#deleteModal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget); // Button that triggered the modal
-                var userId = button.data('userid');
-                var userEmail = button.data('useremail');
-
-                var modal = $(this);
-                modal.find('#userIdToDelete').val(userId);
-                modal.find('#userEmailToDelete').text(userEmail);
-            });
-
-            var toastMessage = '@TempData["ToastMessage"]';
-            if (toastMessage) {
-                showToast(toastMessage, true);
-            }
-        });
-    </script>
+    <!-- MODIFIED: The old DataTables init script is removed. It will be handled in our new JS file. -->
+    <!-- We now reference our new, dedicated JavaScript file for this page. -->
+    <script src="~/js/user-management.js" asp-append-version="true"></script>
 }
