@@ -1,13 +1,16 @@
-﻿@model IEnumerable<SmileScript.ViewModels.UserViewModel>
-
-@{
+﻿@{
     ViewData["Title"] = "User Management";
 }
+
+<!-- *** THE DEFINITIVE FIX FOR THE 'DELETE' ERROR, PART 1 *** -->
+<!-- Add a hidden form with the anti-forgery token. This ensures the token is always on the page. -->
+<form id="antiForgeryForm" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
 
 <h1><i class="bi bi-people-fill"></i> User Management</h1>
 
 <p>
-    <!-- MODIFIED: Changed this from a link to a button and gave it an ID for our JS to target -->
     <button type="button" id="createUserBtn" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create New User</button>
 </p>
 
@@ -19,9 +22,7 @@
             <th>Actions</th>
         </tr>
     </thead>
-    <!-- MODIFIED: The server-side Razor loop has been completely removed. -->
     <tbody>
-        <!-- JavaScript will populate this section. We add a loading row as a placeholder. -->
         <tr>
             <td colspan="3" class="text-center">
                 <div class="spinner-border" role="status">
@@ -32,8 +33,7 @@
     </tbody>
 </table>
 
-<!-- START: ADDED MODAL SHELL -->
-<!-- This modal will be used for both creating and editing users. -->
+<!-- User Create/Edit Modal -->
 <div class="modal fade" id="userFormModal" tabindex="-1" role="dialog" aria-labelledby="userFormModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -43,19 +43,16 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" id="userFormModalBody">
-                <!-- The partial view with the form will be loaded here via AJAX -->
-            </div>
+            <div class="modal-body" id="userFormModalBody"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <!-- This button's text and action will be controlled by JavaScript -->
                 <button type="button" id="saveUserBtn" class="btn btn-primary">Save</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Delete Confirmation Modal (this remains unchanged) -->
+<!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -70,15 +67,15 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <!-- MODIFIED: Removed the form tag and added an ID to the button for our JS -->
                 <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
             </div>
         </div>
     </div>
 </div>
-<!-- END: ADDED MODAL SHELL -->
+
 @section Scripts {
-    <!-- MODIFIED: The old DataTables init script is removed. It will be handled in our new JS file. -->
-    <!-- We now reference our new, dedicated JavaScript file for this page. -->
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script src="~/js/user-management.js" asp-append-version="true"></script>
 }
