@@ -2,53 +2,36 @@
     ViewData["Title"] = "Blog Posts";
 }
 
-<!-- Add a hidden form with the anti-forgery token. This ensures the token is always available. -->
-<form id="antiForgeryForm" style="display:none;">
-    @Html.AntiForgeryToken()
-</form>
+<form id="antiForgeryForm" style="display:none;">@Html.AntiForgeryToken()</form>
 
 <h1><i class="bi bi-file-post"></i> Blog Posts</h1>
-
-<p>
-    <button type="button" id="createPostBtn" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create New Post</button>
-</p>
+<p><button type="button" id="createPostBtn" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create New Post</button></p>
 
 <table id="blogPostsTable" class="table table-bordered table-striped" style="width:100%">
     <thead>
-        <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Category</th>
-            <th>Status</th>
-            <th>Created Date</th>
-            <th>Actions</th>
-        </tr>
+        <tr><th>Title</th><th>Author</th><th>Category</th><th>Status</th><th>Created Date</th><th>Actions</th></tr>
     </thead>
-    <tbody>
-        <!-- JavaScript will populate this section. We add a loading row as a placeholder. -->
-        <tr>
-            <td colspan="6" class="text-center">
-                <div class="spinner-border" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-            </td>
-        </tr>
-    </tbody>
+    <tbody></tbody>
 </table>
 
-<!-- START: ADDED MODAL SHELLS -->
-<!-- Main Modal for Creating/Editing Posts. Added 'modal-lg' for more space. -->
-<div class="modal fade" id="postFormModal" tabindex="-1" role="dialog" aria-labelledby="postFormModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+<!-- THE DEFINITIVE FIX, PART 1: The Modal now PERMANENTLY contains the editor's container. -->
+<div class="modal fade" id="postFormModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="postFormModalLabel">Modal Title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title" id="postFormModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <div class="modal-body" id="postFormModalBody">
-                <!-- The partial view with the form will be loaded here via AJAX -->
+            <div class="modal-body">
+                <!-- This container will be filled by the PARTIAL VIEW (form fields only) -->
+                <div id="modal-form-fields-container"></div>
+                <!-- This container for the editor is STATIC and will be initialized only ONCE. -->
+                <div class="form-group">
+                    <label>Content</label>
+
+                    <div id="tui-editor-container"></div>
+
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -58,28 +41,11 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal (structure remains the same) -->
+<!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirm Delete</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to delete the post: <strong id="postTitleToDelete"></strong>?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
-            </div>
-        </div>
-    </div>
+    <div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Confirm Delete</h5><button type="button" class="close" data-dismiss="modal">&times;</button></div><div class="modal-body">Are you sure you want to delete the post: <strong id="postTitleToDelete"></strong>?</div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button><button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button></div></div></div>
 </div>
-<!-- END: ADDED MODAL SHELLS -->
+
 @section Scripts {
-    <!-- Add reference to our new, dedicated JavaScript file for this page. -->
     <script src="~/js/blog-posts.js" asp-append-version="true"></script>
 }

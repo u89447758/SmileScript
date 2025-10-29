@@ -1,72 +1,46 @@
 ﻿@model SmileScript.ViewModels.BlogPostViewModel
 @using SmileScript.Enums
 
-<!-- This form will be submitted via AJAX. The ID and enctype are critical. -->
+<!-- This form has been redesigned into a single, stacked column. -->
 <form id="postForm" enctype="multipart/form-data">
-
-    <!-- This hidden input holds the post's ID. For new posts, it will be 0. -->
     <input type="hidden" asp-for="BlogPost.Id" />
 
+    <!-- Title Input -->
+    <div class="form-group">
+        <label asp-for="BlogPost.Title"></label>
+        <input asp-for="BlogPost.Title" class="form-control form-control-lg" />
+    </div>
+
+    <!-- Settings and Header Image Cards in a row, but will stack on smaller screens -->
     <div class="row">
-        <!-- Main Content Column (Editor) -->
-        <div class="col-md-8">
-            <div class="card card-primary card-outline">
-                <div class="card-body">
-                    <div class="form-group">
-                        <label asp-for="BlogPost.Title" class="control-label"></label>
-                        <input asp-for="BlogPost.Title" class="form-control form-control-lg" placeholder="Enter post title here" />
-                        <span asp-validation-for="BlogPost.Title" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label asp-for="BlogPost.Content" class="control-label"></label>
-                        <!-- This container is the target for the Markdown editor plugin -->
-                        <div id="editor-md-container">
-                            <textarea asp-for="BlogPost.Content" style="display:none;"></textarea>
-                        </div>
-                        <span asp-validation-for="BlogPost.Content" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar Settings Column -->
-        <div class="col-md-4">
-            <!-- Settings Card (for Status and Category) -->
-            <div class="card card-primary card-outline">
+        <div class="col-md-6">
+            <div class="card card-outline card-primary mb-3">
                 <div class="card-header"><h3 class="card-title">Settings</h3></div>
                 <div class="card-body">
                     @if (User.IsInRole("Admin"))
                     {
                         <div class="form-group">
-                            <label asp-for="BlogPost.Status" class="control-label"></label>
+                            <label asp-for="BlogPost.Status"></label>
                             <select asp-for="BlogPost.Status" asp-items="Html.GetEnumSelectList<PostStatus>()" class="form-control"></select>
-                            <span asp-validation-for="BlogPost.Status" class="text-danger"></span>
                         </div>
                     }
                     <div class="form-group">
-                        <label asp-for="BlogPost.CategoryId" class="control-label">Category</label>
+                        <label asp-for="BlogPost.CategoryId">Category</label>
                         <select asp-for="BlogPost.CategoryId" class="form-control" asp-items="Model.CategoryList">
                             <option value="">-- Select Category --</option>
                         </select>
-                        <span asp-validation-for="BlogPost.CategoryId" class="text-danger"></span>
                     </div>
                 </div>
             </div>
-
-            <!-- Header Image Card -->
-            <div class="card card-primary card-outline">
+        </div>
+        <div class="col-md-6">
+            <div class="card card-outline card-primary">
                 <div class="card-header"><h3 class="card-title">Header Image</h3></div>
                 <div class="card-body">
-                    @if (!string.IsNullOrEmpty(Model.BlogPost.HeaderImageUrl))
-                    {
-                        <p>Current Image:</p>
-                        <img src="@Model.BlogPost.HeaderImageUrl" style="max-width: 100%; border-radius: 5px; margin-bottom: 1rem;" />
-                    }
+                    <div id="current-image-container"></div>
                     <div class="form-group">
-                        <label asp-for="HeaderImage" class="control-label">Upload New</label>
+                        <label asp-for="HeaderImage">Upload New</label>
                         <input asp-for="HeaderImage" class="form-control-file" />
-                        <span asp-validation-for="HeaderImage" class="text-danger"></span>
                     </div>
                 </div>
             </div>

@@ -43,23 +43,32 @@ namespace SmileScript.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Start with the base query, including navigation properties.
             IQueryable<BlogPost> blogPostsQuery = _context.BlogPosts
                 .Include(b => b.Author)
                 .Include(b => b.Category);
 
-            // If the user is an Author, filter the posts to only show their own.
             if (User.IsInRole("Author"))
             {
                 blogPostsQuery = blogPostsQuery.Where(p => p.AuthorId == userId);
             }
 
-            var blogPosts = await blogPostsQuery
+            var blogPostDtos = await blogPostsQuery
                 .OrderByDescending(p => p.CreatedDate)
+                .Select(p => new BlogPostDto
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    // *** THE FIX, PART 3: Populate the new properties in the controller action ***
+                    Content = p.Content,
+                    HeaderImageUrl = p.HeaderImageUrl,
+                    AuthorEmail = p.Author.Email,
+                    CategoryName = p.Category.Name,
+                    Status = (int)p.Status,
+                    CreatedDate = p.CreatedDate
+                })
                 .ToListAsync();
 
-            // We wrap the data in an object with a 'data' property, which is standard for DataTables.
-            return Json(new { data = blogPosts });
+            return Json(new { data = blogPostDtos });
         }
 
 
@@ -192,30 +201,37 @@ namespace SmileScript.Controllers
         }
 
 
-        // --- UNCHANGED ACTIONS ---
-        // The UploadImage action for the editor already returns JSON, so it's perfect.
         [HttpPost]
         [IgnoreAntiforgeryToken]
-        public async Task<JsonResult> UploadImage([FromForm(Name = "editormd-image-file")] IFormFile file)
+        // THE FIX, PART 1: The 'FromForm' attribute name now matches what TOAST UI Editor sends by default.
+        public async Task<IActionResult> UploadImage([FromForm(Name = "image")] IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
-                return Json(new { success = 0, message = "No file received or file is empty." });
+                // Return a Bad Request status code if no file is received.
+                return BadRequest(new { error = "No file received or file is empty." });
             }
             try
             {
                 string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "images/posts");
                 string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName).Replace(" ", "-");
                 string filePath = Path.Combine(uploadsDir, uniqueFileName);
+
                 await using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await file.CopyToAsync(fileStream);
                 }
-                return Json(new { success = 1, message = "Image uploaded successfully!", url = "/images/posts/" + uniqueFileName });
+
+                // THE FIX, PART 2: Return JSON in the simple { "url": "..." } format that TOAST UI Editor expects.
+                // We also need to return the full URL, including the request scheme and host.
+                var imageUrl = $"{Request.Scheme}://{Request.Host}/images/posts/{uniqueFileName}";
+
+                return Json(new { url = imageUrl });
             }
             catch (Exception ex)
             {
-                return Json(new { success = 0, message = "An error occurred: " + ex.Message });
+                // Return a 500 Internal Server Error status code on failure.
+                return StatusCode(500, new { error = "An error occurred: " + ex.Message });
             }
         }
 
