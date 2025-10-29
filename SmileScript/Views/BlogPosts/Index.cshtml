@@ -1,17 +1,18 @@
-﻿@model IEnumerable<SmileScript.Models.BlogPost>
-@using SmileScript.Enums
-
-@{
+﻿@{
     ViewData["Title"] = "Blog Posts";
 }
+
+<!-- Add a hidden form with the anti-forgery token. This ensures the token is always available. -->
+<form id="antiForgeryForm" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
 
 <h1><i class="bi bi-file-post"></i> Blog Posts</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create New Post</a>
+    <button type="button" id="createPostBtn" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create New Post</button>
 </p>
 
-<!-- 1. ADDED an ID to the table tag and ensured proper thead/tbody structure -->
 <table id="blogPostsTable" class="table table-bordered table-striped" style="width:100%">
     <thead>
         <tr>
@@ -24,47 +25,40 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.Title)</td>
-                <td>@Html.DisplayFor(modelItem => item.Author.Email)</td>
-                <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
-                <td>
-                    <!-- 2. ENHANCED the Status column with styled badges -->
-                    @{
-                        string statusClass = "";
-                        switch (item.Status)
-                        {
-                            case PostStatus.Published:
-                                statusClass = "status-published";
-                                break;
-                            case PostStatus.PendingReview:
-                                statusClass = "status-pending";
-                                break;
-                            case PostStatus.Rejected:
-                                statusClass = "status-rejected";
-                                break;
-                            default:
-                                statusClass = "status-draft";
-                                break;
-                        }
-                    }
-                    <span class="badge @statusClass">@item.Status</span>
-                </td>
-                <td>@item.CreatedDate.ToShortDateString()</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm" title="Edit"><i class="bi bi-pencil"></i></a>
-                    <button type="button" class="btn btn-danger btn-sm delete-button" data-toggle="modal" data-target="#deleteModal" data-id="@item.Id" data-title="@item.Title" title="Delete">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        }
+        <!-- JavaScript will populate this section. We add a loading row as a placeholder. -->
+        <tr>
+            <td colspan="6" class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </td>
+        </tr>
     </tbody>
 </table>
 
-<!-- Delete Confirmation Modal (Unchanged) -->
+<!-- START: ADDED MODAL SHELLS -->
+<!-- Main Modal for Creating/Editing Posts. Added 'modal-lg' for more space. -->
+<div class="modal fade" id="postFormModal" tabindex="-1" role="dialog" aria-labelledby="postFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="postFormModalLabel">Modal Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="postFormModalBody">
+                <!-- The partial view with the form will be loaded here via AJAX -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" id="savePostBtn" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal (structure remains the same) -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -79,36 +73,13 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form asp-action="Delete" method="post" class="d-inline">
-                    <input type="hidden" name="id" id="postIdToDelete" />
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
             </div>
         </div>
     </div>
 </div>
-
-
-<!-- 3. ADDED the Scripts section to initialize DataTables -->
+<!-- END: ADDED MODAL SHELLS -->
 @section Scripts {
-    <script>
-        $(document).ready(function () {
-            // This one line of code activates all the DataTables features!
-            $('#blogPostsTable').DataTable();
-
-            // The rest of the script for the delete modal and toast remains the same
-            $('.delete-button').on('click', function () {
-                var postId = $(this).data('id');
-                var postTitle = $(this).data('title');
-
-                $('#postIdToDelete').val(postId);
-                $('#postTitleToDelete').text(postTitle);
-            });
-
-            var toastMessage = '@TempData["ToastMessage"]';
-            if (toastMessage) {
-                showToast(toastMessage, true);
-            }
-        });
-    </script>
+    <!-- Add reference to our new, dedicated JavaScript file for this page. -->
+    <script src="~/js/blog-posts.js" asp-append-version="true"></script>
 }

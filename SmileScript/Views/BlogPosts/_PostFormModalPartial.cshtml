@@ -1,27 +1,28 @@
 ﻿@model SmileScript.ViewModels.BlogPostViewModel
 @using SmileScript.Enums
 
-@{
-    ViewData["Title"] = "Edit Blog Post";
-}
+<!-- This form will be submitted via AJAX. The ID and enctype are critical. -->
+<form id="postForm" enctype="multipart/form-data">
 
-<form id="post-form" asp-action="Edit" enctype="multipart/form-data">
+    <!-- This hidden input holds the post's ID. For new posts, it will be 0. -->
     <input type="hidden" asp-for="BlogPost.Id" />
+
     <div class="row">
-        <!-- Main Content Column (2/3 width) -->
+        <!-- Main Content Column (Editor) -->
         <div class="col-md-8">
             <div class="card card-primary card-outline">
                 <div class="card-body">
                     <div class="form-group">
                         <label asp-for="BlogPost.Title" class="control-label"></label>
-                        <input asp-for="BlogPost.Title" class="form-control form-control-lg" />
+                        <input asp-for="BlogPost.Title" class="form-control form-control-lg" placeholder="Enter post title here" />
                         <span asp-validation-for="BlogPost.Title" class="text-danger"></span>
                     </div>
 
                     <div class="form-group">
                         <label asp-for="BlogPost.Content" class="control-label"></label>
+                        <!-- This container is the target for the Markdown editor plugin -->
                         <div id="editor-md-container">
-                            <textarea asp-for="BlogPost.Content" style="display:none;">@Model.BlogPost.Content</textarea>
+                            <textarea asp-for="BlogPost.Content" style="display:none;"></textarea>
                         </div>
                         <span asp-validation-for="BlogPost.Content" class="text-danger"></span>
                     </div>
@@ -29,26 +30,11 @@
             </div>
         </div>
 
-        <!-- Sidebar Settings Column (1/3 width) -->
+        <!-- Sidebar Settings Column -->
         <div class="col-md-4">
-            <!-- Publish Card -->
-            <div class="card card-primary card-outline">
-                <div class="card-header">
-                    <h3 class="card-title">Actions</h3>
-                </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <button id="submit-button" type="submit" class="btn btn-primary btn-block">Save Changes</button>
-                        <a asp-action="Index" class="btn btn-secondary btn-block mt-2">Back to List</a>
-                    </div>
-                </div>
-            </div>
-
             <!-- Settings Card (for Status and Category) -->
             <div class="card card-primary card-outline">
-                <div class="card-header">
-                    <h3 class="card-title">Settings</h3>
-                </div>
+                <div class="card-header"><h3 class="card-title">Settings</h3></div>
                 <div class="card-body">
                     @if (User.IsInRole("Admin"))
                     {
@@ -60,7 +46,9 @@
                     }
                     <div class="form-group">
                         <label asp-for="BlogPost.CategoryId" class="control-label">Category</label>
-                        <select asp-for="BlogPost.CategoryId" class="form-control" asp-items="Model.CategoryList"></select>
+                        <select asp-for="BlogPost.CategoryId" class="form-control" asp-items="Model.CategoryList">
+                            <option value="">-- Select Category --</option>
+                        </select>
                         <span asp-validation-for="BlogPost.CategoryId" class="text-danger"></span>
                     </div>
                 </div>
@@ -68,9 +56,7 @@
 
             <!-- Header Image Card -->
             <div class="card card-primary card-outline">
-                <div class="card-header">
-                    <h3 class="card-title">Header Image</h3>
-                </div>
+                <div class="card-header"><h3 class="card-title">Header Image</h3></div>
                 <div class="card-body">
                     @if (!string.IsNullOrEmpty(Model.BlogPost.HeaderImageUrl))
                     {
@@ -87,33 +73,3 @@
         </div>
     </div>
 </form>
-
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-    <script type="text/javascript">
-        $(function () {
-            var editor = editormd("editor-md-container", {
-                width: "100%",
-                height: 640,
-                path: "https://cdn.jsdelivr.net/npm/editor.md@1.5.0/lib/",
-                saveHTMLToTextarea: true,
-                imageUpload: true,
-                imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
-                imageUploadURL: "/BlogPosts/UploadImage"
-            });
-
-            // This script logic remains the same and is compatible
-            $("#submit-button").on('click', function (e) {
-                e.preventDefault();
-                var markdownContent = editor.getMarkdown();
-                $("#BlogPost_Content").val(markdownContent);
-                var postId = $("#BlogPost_Id").val();
-                $("#post-form").attr('action', '/BlogPosts/Edit/' + postId);
-                $("#post-form").submit();
-            });
-        });
-    </script>
-}
